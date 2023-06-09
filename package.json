@@ -3,13 +3,15 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
+		"dev": "vitest watch",
 		"build": "tsc && vite build",
-		"preview": "vite preview"
+		"test": "vitest run",
+		"coverage": "vitest run --coverage"
 	},
 	"devDependencies": {
 		"typescript": "^5.0.2",
-		"vite": "^4.3.9"
+		"vite": "^4.3.9",
+		"vitest": "^0.32.0"
 	},
 	"exports": {
 		".": {
