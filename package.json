@@ -3,12 +3,13 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vitest watch",
+		"dev": "vite",
 		"build": "tsc && vite build",
-		"test": "vitest run",
+		"test": "vitest --ui --open --watch",
 		"coverage": "vitest run --coverage"
 	},
 	"devDependencies": {
+		"@vitest/ui": "^0.32.0",
 		"typescript": "^5.0.2",
 		"vite": "^4.3.9",
 		"vitest": "^0.32.0"
@@ -17,6 +18,10 @@
 		".": {
 			"types": "./dist/main.js",
 			"import": "./types/main.d.ts"
+		},
+		"./async": {
+			"types": "./dist/async.js",
+			"import": "./types/async.d.ts"
 		}
 	}
 }
