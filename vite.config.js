@@ -7,6 +7,7 @@ export default defineConfig({
 			formats: ["es"],
 			entry: {
 				main: resolve(__dirname, "src/main.ts"),
+				async: resolve(__dirname, "src/async.ts"),
 			},
 		},
 	},
