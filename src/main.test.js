@@ -1,4 +1,4 @@
-import { describe } from "vitest";
+import { describe } from "vitest"
 import { clamp } from "./main.ts"
 
 describe.concurrent("clamp", it => {

@@ -1,5 +1,5 @@
-import { describe } from "vitest";
-import { wait } from "./async.ts";
+import { describe } from "vitest"
+import { wait } from "./async.ts"
 
 describe("wait", it => {
 	it("Waits", async ({ expect }) => {
