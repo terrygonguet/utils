@@ -6,6 +6,7 @@ interface API<T> {
 	orDefault(this: Maybe<T>, defaultValue: T): T
 	map<U>(this: Maybe<T>, f: (value: T) => U): Maybe<U>
 	flatMap<U>(this: Maybe<T>, f: (value: T) => Maybe<U>): Maybe<U>
+	toJSON(this: Maybe<T>): Object
 }
 
 export type Some<T> = { value: T } & API<T>
@@ -29,6 +30,9 @@ export function Some<T>(value: NonNullable<T>): Some<T> {
 		flatMap(this: Some<T>, f) {
 			return f(this.value)
 		},
+		toJSON(this: Some<T>) {
+			return { $_kind, $_variant: $_variant_Some, value: this.value }
+		},
 	}
 	return Object.create(SomePrototype, {
 		$_kind: { value: $_kind, enumerable: false, writable: false },
@@ -43,6 +47,7 @@ const NonePrototype: API<never> = {
 	orDefault: identity,
 	map: () => None,
 	flatMap: () => None,
+	toJSON: () => ({ $_kind, $_variant: $_variant_None }),
 }
 export const None: None = Object.create(NonePrototype, {
 	$_kind: { value: $_kind, enumerable: false, writable: false },
@@ -58,5 +63,13 @@ export const Maybe = {
 			default:
 				return Some(value!)
 		}
+	},
+	JSONReviver(_key: string, value: any) {
+		if (value?.$_kind == $_kind) {
+			const $_variant = value?.$_variant
+			if ($_variant == $_variant_Some) return Some<unknown>(value?.value)
+			else if ($_variant == $_variant_None) return None
+			else return value
+		} else return value
 	},
 }
