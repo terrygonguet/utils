@@ -1,5 +1,6 @@
 import { describe } from "vitest"
-import { clamp, safeParse } from "./main.ts"
+import { clamp, safeParse, composeJSONRevivers } from "./main.ts"
+import { Failure, Maybe, None, Result, Some, Success } from "./functional/index.ts"
 
 describe.concurrent("clamp()", it => {
 	it("does nothing to values within range", ({ expect }) => {
@@ -39,5 +40,48 @@ describe.concurrent("safeParse()", it => {
 			prop: "replaced",
 			other: "ignored",
 		})
+	})
+})
+
+describe.concurrent("combineJSONRevivers()", it => {
+	it("does nothing when given nothing", ({ expect }) => {
+		const json = `{"prop":"value","other":"ignored"}`
+		const obj = JSON.parse(json, composeJSONRevivers())
+		expect(obj).toMatchInlineSnapshot(`
+			{
+			  "other": "ignored",
+			  "prop": "value",
+			}
+		`)
+	})
+
+	it("composes revivers", ({ expect }) => {
+		const json = JSON.stringify({
+			prop: "value",
+			other: "ignored",
+			maybe: {
+				some: Some(5),
+				none: None,
+			},
+			result: {
+				success: Success(5),
+				failure: Failure("fail"),
+			},
+		})
+		const obj = JSON.parse(
+			json,
+			composeJSONRevivers(Maybe.JSONReviver, Result.JSONReviver, (key, value) =>
+				key == "prop" ? "replaced" : value,
+			),
+		)
+		expect(obj.prop).to.equal("replaced")
+		expect(obj.other).to.equal("ignored")
+		expect(obj.maybe.some.isSome()).to.be.true
+		expect(obj.maybe.some.value).to.equal(5)
+		expect(obj.maybe.none.isSome()).to.be.false
+		expect(obj.result.success.isSuccess()).to.be.true
+		expect(obj.result.success.value).to.equal(5)
+		expect(obj.result.failure.isSuccess()).to.be.false
+		expect(obj.result.failure.reason).to.equal("fail")
 	})
 })
