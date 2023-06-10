@@ -33,7 +33,7 @@ export function Success<S, F>(value: S): Success<S, F> {
 	return Object.create(SuccessPrototype, {
 		$_kind: { value: $_kind, enumerable: false, writable: false },
 		$_variant: { value: $_variant_Success, enumerable: false, writable: false },
-		value: { value },
+		value: { value, writable: false },
 	})
 }
 
@@ -54,7 +54,7 @@ export function Failure<S, F>(reason: F): Failure<S, F> {
 	return Object.create(FailurePrototype, {
 		$_kind: { value: $_kind, enumerable: false, writable: false },
 		$_variant: { value: $_variant_Success, enumerable: false, writable: false },
-		reason: { value: reason },
+		reason: { value: reason, writable: false },
 	})
 }
 

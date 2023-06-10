@@ -37,7 +37,7 @@ export function Some<T>(value: NonNullable<T>): Some<T> {
 	return Object.create(SomePrototype, {
 		$_kind: { value: $_kind, enumerable: false, writable: false },
 		$_variant: { value: $_variant_Some, enumerable: false, writable: false },
-		value: { value },
+		value: { value, writable: false },
 	})
 }
 
