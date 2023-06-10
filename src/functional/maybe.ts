@@ -17,7 +17,7 @@ const $_kind = "@terrygonguet/utils/functional/maybe"
 const $_variant_Some = "@terrygonguet/utils/functional/maybe/Some"
 const $_variant_None = "@terrygonguet/utils/functional/maybe/None"
 
-export function Some<T>(value: NonNullable<T>): Some<T> {
+function Some<T>(value: NonNullable<T>): Some<T> {
 	return Object.create(
 		{
 			isSome: () => true,
@@ -43,7 +43,7 @@ export function Some<T>(value: NonNullable<T>): Some<T> {
 	)
 }
 
-export const None: None<any> = Object.create(
+const None: None<any> = Object.create(
 	{
 		isSome: () => false,
 		isNone: () => true,

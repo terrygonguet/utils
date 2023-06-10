@@ -17,7 +17,7 @@ const $_kind = "@terrygonguet/utils/functional/result"
 const $_variant_Success = "@terrygonguet/utils/functional/result/Success"
 const $_variant_Failure = "@terrygonguet/utils/functional/result/Failure"
 
-export function Success<S, F>(value: S): Success<S, F> {
+function Success<S, F>(value: S): Success<S, F> {
 	return Object.create(
 		{
 			isSuccess: () => true,
@@ -43,7 +43,7 @@ export function Success<S, F>(value: S): Success<S, F> {
 	)
 }
 
-export function Failure<S, F>(reason: F): Failure<S, F> {
+function Failure<S, F>(reason: F): Failure<S, F> {
 	return Object.create(
 		{
 			isSuccess: () => false,
@@ -85,7 +85,7 @@ export const Result = {
 	},
 }
 
-export class TryCatch<S, F> {
+class TryCatch<S, F> {
 	tryFn: () => S
 	catchFn: (err: unknown) => F
 

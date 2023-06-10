@@ -1,9 +1,9 @@
 import { describe } from "vitest"
-import { Success, Failure, Result } from "./result.ts"
+import { type Success, type Failure, Result } from "./result.ts"
 
 describe.concurrent("Result", it => {
-	const success: Result<number, string> = Success(5)
-	const failure: Result<number, string> = Failure("reason")
+	const success: Result<number, string> = Result.Success(5)
+	const failure: Result<number, string> = Result.Failure("reason")
 
 	it("isSuccess()", ({ expect }) => {
 		expect(success.isSuccess()).to.be.true
@@ -39,19 +39,19 @@ describe.concurrent("Result", it => {
 	})
 
 	it("flatMap()", ({ expect }) => {
-		const succ1 = success.flatMap(n => Success(n * 2))
+		const succ1 = success.flatMap(n => Result.Success(n * 2))
 		expect(succ1.isSuccess()).to.be.true
 		expect((succ1 as Success<number, string>).value).to.equal(10)
 
-		const fail1 = success.flatMap(_ => Failure("fail"))
+		const fail1 = success.flatMap(_ => Result.Failure("fail"))
 		expect(fail1.isSuccess()).to.be.false
 		expect((fail1 as Failure<number, string>).reason).to.equal("fail")
 
-		const fail2 = failure.flatMap(n => Success(n * 2))
+		const fail2 = failure.flatMap(n => Result.Success(n * 2))
 		expect(fail2.isSuccess()).to.be.false
 		expect((fail2 as Failure<number, string>).reason).to.equal("reason")
 
-		const fail3 = failure.flatMap(_ => Failure("fail"))
+		const fail3 = failure.flatMap(_ => Result.Failure("fail"))
 		expect(fail3.isSuccess()).to.be.false
 		expect((fail3 as Failure<number, string>).reason).to.equal("reason")
 	})

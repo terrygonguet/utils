@@ -1,6 +1,6 @@
 import { describe } from "vitest"
 import { clamp, safeParse, composeJSONRevivers } from "./main.ts"
-import { Failure, Maybe, None, Result, Some, Success } from "./functional/index.ts"
+import { Maybe, Result } from "./functional/index.ts"
 
 describe.concurrent("clamp()", it => {
 	it("does nothing to values within range", ({ expect }) => {
@@ -60,12 +60,12 @@ describe.concurrent("combineJSONRevivers()", it => {
 			prop: "value",
 			other: "ignored",
 			maybe: {
-				some: Some(5),
-				none: None,
+				some: Maybe.Some(5),
+				none: Maybe.None,
 			},
 			result: {
-				success: Success(5),
-				failure: Failure("fail"),
+				success: Result.Success(5),
+				failure: Result.Failure("fail"),
 			},
 		})
 		const obj = JSON.parse(

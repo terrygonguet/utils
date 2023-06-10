@@ -1,9 +1,9 @@
 import { describe } from "vitest"
-import { Some, None, Maybe } from "./maybe.ts"
+import { Maybe, type Some } from "./maybe.ts"
 
 describe.concurrent("Maybe", it => {
-	const some: Maybe<number> = Some(5)
-	const none: Maybe<number> = None
+	const some: Maybe<number> = Maybe.Some(5)
+	const none: Maybe<number> = Maybe.None
 
 	it("isSome()", ({ expect }) => {
 		expect(some.isSome()).to.be.true
@@ -29,14 +29,14 @@ describe.concurrent("Maybe", it => {
 	})
 
 	it("flatMap()", ({ expect }) => {
-		const some1 = some.flatMap(n => Some(n * 2))
+		const some1 = some.flatMap(n => Maybe.Some(n * 2))
 		expect(some1.isSome()).to.be.true
 		expect((some1 as Some<number>).value).to.equal(10)
-		const none1 = some.flatMap(_ => None)
+		const none1 = some.flatMap(_ => Maybe.None)
 		expect(none1.isNone()).to.be.true
-		const some2 = none.flatMap(n => Some(n * 2))
+		const some2 = none.flatMap(n => Maybe.Some(n * 2))
 		expect(some2.isSome()).to.be.false
-		const none2 = some.flatMap(_ => None)
+		const none2 = some.flatMap(_ => Maybe.None)
 		expect(none2.isNone()).to.be.true
 	})
 
@@ -89,16 +89,16 @@ describe.concurrent("Maybe", it => {
 			const json3 = `{"prop":"value","none":{"$_kind":"${$_kind}","$_variant":"${$_variant_None}"}}`
 			const obj3 = JSON.parse(json3, Maybe.JSONReviver)
 			expect(obj3.prop).to.equal("value")
-			expect(obj3.none).to.equal(None)
+			expect(obj3.none).to.equal(Maybe.None)
 		})
 
 		it("does a round trip", ({ expect }) => {
-			const json4 = JSON.stringify({ prop: "value", some: Some(5), none: None })
+			const json4 = JSON.stringify({ prop: "value", some: Maybe.Some(5), none: Maybe.None })
 			const obj4 = JSON.parse(json4, Maybe.JSONReviver)
 			expect(obj4.prop).to.equal("value")
 			expect(obj4.some.isSome()).to.be.true
 			expect(obj4.some.value).to.equal(5)
-			expect(obj4.none).to.equal(None)
+			expect(obj4.none).to.equal(Maybe.None)
 		})
 
 		it("ignores unknown variants", ({ expect }) => {
