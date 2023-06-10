@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
-		"test": "vitest --ui --open --watch",
+		"test": "vitest test --ui --watch --update",
 		"coverage": "vitest run --coverage"
 	},
 	"devDependencies": {
