@@ -99,11 +99,15 @@ class TryCatch<S, F> {
 		return this
 	}
 
-	exec(): Result<S, F> {
+	exec(finallyFn?: (result: Result<S, F>) => void): Result<S, F> {
 		try {
-			return Success<S, F>(this.tryFn())
+			const result = Success<S, F>(this.tryFn())
+			finallyFn?.(result)
+			return result
 		} catch (error) {
-			return Failure<S, F>(this.catchFn(error))
+			const result = Failure<S, F>(this.catchFn(error))
+			finallyFn?.(result)
+			return result
 		}
 	}
 }

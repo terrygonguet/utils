@@ -173,5 +173,30 @@ describe.concurrent("Result", it => {
 			expect(result.isSuccess()).to.be.true
 			expect((result as Success<number, string>).value).to.equal(10)
 		})
+
+		it("runs finally no matter what", ({ expect }) => {
+			Result.try(() => {
+				const n = 5
+				return n * 2
+			})
+				.catch(_ => {
+					throw new Error("Should not run")
+				})
+				.exec(result => {
+					expect(result.isSuccess()).to.be.true
+					expect((result as Success<number, string>).value).to.equal(10)
+				})
+
+			Result.try(() => {
+				throw new Error("fail")
+			})
+				.catch(err => {
+					return (err as Error).message
+				})
+				.exec(result => {
+					expect(result.isSuccess()).to.be.false
+					expect((result as Failure<number, string>).reason).to.equal("fail")
+				})
+		})
 	})
 })
