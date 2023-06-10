@@ -5,10 +5,11 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
-		"test": "vitest test --ui --watch --update",
+		"test": "vitest test --ui --watch --update --coverage",
 		"coverage": "vitest run --coverage"
 	},
 	"devDependencies": {
+		"@vitest/coverage-v8": "^0.32.0",
 		"@vitest/ui": "^0.32.0",
 		"prettier": "^2.8.8",
 		"typescript": "^5.0.2",
