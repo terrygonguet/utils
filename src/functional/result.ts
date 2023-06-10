@@ -17,45 +17,49 @@ const $_variant_Success = "@terrygonguet/utils/functional/result/Success"
 const $_variant_Failure = "@terrygonguet/utils/functional/result/Failure"
 
 export function Success<S, F>(value: S): Success<S, F> {
-	const SuccessPrototype: API<S, F> = {
-		isSuccess: () => true,
-		isFailure: () => false,
-		map<S2>(this: Success<S, F>, f: (value: S) => S2) {
-			return Success(f(this.value))
+	return Object.create(
+		{
+			isSuccess: () => true,
+			isFailure: () => false,
+			map<S2>(this: Success<S, F>, f: (value: S) => S2) {
+				return Success(f(this.value))
+			},
+			flatMap<S2, F2>(this: Success<S, F>, f: (value: S) => Result<S2, F2>) {
+				return f(this.value)
+			},
+			toJSON(this: Success<S, F>) {
+				return { $_kind, $_variant: $_variant_Success, value: this.value }
+			},
+		} as API<S, F>,
+		{
+			$_kind: { value: $_kind, enumerable: false, writable: false },
+			$_variant: { value: $_variant_Success, enumerable: false, writable: false },
+			value: { value, writable: false },
 		},
-		flatMap<S2, F2>(this: Success<S, F>, f: (value: S) => Result<S2, F2>) {
-			return f(this.value)
-		},
-		toJSON(this: Success<S, F>) {
-			return { $_kind, $_variant: $_variant_Success, value: this.value }
-		},
-	}
-	return Object.create(SuccessPrototype, {
-		$_kind: { value: $_kind, enumerable: false, writable: false },
-		$_variant: { value: $_variant_Success, enumerable: false, writable: false },
-		value: { value, writable: false },
-	})
+	)
 }
 
 export function Failure<S, F>(reason: F): Failure<S, F> {
-	const FailurePrototype: API<S, F> = {
-		isSuccess: () => false,
-		isFailure: () => true,
-		map<S2>(this: Failure<S, F>) {
-			return this as unknown as Result<S2, F>
+	return Object.create(
+		{
+			isSuccess: () => false,
+			isFailure: () => true,
+			map<S2>(this: Failure<S, F>) {
+				return this as unknown as Result<S2, F>
+			},
+			flatMap<S2, F2>(this: Failure<S, F>) {
+				return this as unknown as Result<S2, F | F2>
+			},
+			toJSON(this: Failure<S, F>) {
+				return { $_kind, $_variant: $_variant_Failure, reason: this.reason }
+			},
+		} as API<S, F>,
+		{
+			$_kind: { value: $_kind, enumerable: false, writable: false },
+			$_variant: { value: $_variant_Success, enumerable: false, writable: false },
+			reason: { value: reason, writable: false },
 		},
-		flatMap<S2, F2>(this: Failure<S, F>) {
-			return this as unknown as Result<S2, F | F2>
-		},
-		toJSON(this: Failure<S, F>) {
-			return { $_kind, $_variant: $_variant_Failure, reason: this.reason }
-		},
-	}
-	return Object.create(FailurePrototype, {
-		$_kind: { value: $_kind, enumerable: false, writable: false },
-		$_variant: { value: $_variant_Success, enumerable: false, writable: false },
-		reason: { value: reason, writable: false },
-	})
+	)
 }
 
 export const Result = {

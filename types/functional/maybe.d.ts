@@ -12,10 +12,10 @@ export type Some<T> = {
 export type None<T> = API<T>;
 export type Maybe<T> = Some<T> | None<T>;
 export declare function Some<T>(value: NonNullable<T>): Some<T>;
-export declare const None: None<never>;
+export declare const None: None<any>;
 export declare const Maybe: {
     Some: typeof Some;
-    None: None<never>;
+    None: None<any>;
     from<T>(value: T | null | undefined): Maybe<T>;
     JSONReviver(_key: string, value: any): any;
 };

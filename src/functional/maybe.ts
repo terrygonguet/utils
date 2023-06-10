@@ -18,30 +18,32 @@ const $_variant_Some = "@terrygonguet/utils/functional/maybe/Some"
 const $_variant_None = "@terrygonguet/utils/functional/maybe/None"
 
 export function Some<T>(value: NonNullable<T>): Some<T> {
-	const SomePrototype: API<T> = {
-		isSome: () => true,
-		isNone: () => false,
-		orDefault(this: Some<T>) {
-			return this.value
+	return Object.create(
+		{
+			isSome: () => true,
+			isNone: () => false,
+			orDefault(this: Some<T>) {
+				return this.value
+			},
+			map(this: Some<T>, f) {
+				return Some(f(this.value)!)
+			},
+			flatMap(this: Some<T>, f) {
+				return f(this.value)
+			},
+			toJSON(this: Some<T>) {
+				return { $_kind, $_variant: $_variant_Some, value: this.value }
+			},
+		} as API<T>,
+		{
+			$_kind: { value: $_kind, enumerable: false, writable: false },
+			$_variant: { value: $_variant_Some, enumerable: false, writable: false },
+			value: { value, writable: false },
 		},
-		map(this: Some<T>, f) {
-			return Some(f(this.value)!)
-		},
-		flatMap(this: Some<T>, f) {
-			return f(this.value)
-		},
-		toJSON(this: Some<T>) {
-			return { $_kind, $_variant: $_variant_Some, value: this.value }
-		},
-	}
-	return Object.create(SomePrototype, {
-		$_kind: { value: $_kind, enumerable: false, writable: false },
-		$_variant: { value: $_variant_Some, enumerable: false, writable: false },
-		value: { value, writable: false },
-	})
+	)
 }
 
-export const None: None<never> = Object.create(
+export const None: None<any> = Object.create(
 	{
 		isSome: () => false,
 		isNone: () => true,
@@ -49,7 +51,7 @@ export const None: None<never> = Object.create(
 		map: () => None,
 		flatMap: () => None,
 		toJSON: () => ({ $_kind, $_variant: $_variant_None }),
-	},
+	} as API<any>,
 	{
 		$_kind: { value: $_kind, enumerable: false, writable: false },
 		$_variant: { value: $_variant_None, enumerable: false, writable: false },
