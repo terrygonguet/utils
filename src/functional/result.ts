@@ -83,6 +83,7 @@ class TryCatch<S, F> {
 
 	catch(catchFn: (err: unknown) => F) {
 		this.catchFn = catchFn
+		return this
 	}
 
 	exec(): Result<S, F> {

@@ -111,4 +111,40 @@ describe.concurrent("Result", it => {
 			expect(obj.failure.reason).to.equal("reason")
 		})
 	})
+
+	describe("Result.try()", it => {
+		it("gets the value from the try function", ({ expect }) => {
+			const result = Result.try(() => {
+				const n = 5
+				return n * 2
+			}).exec()
+			expect(result.isSuccess()).to.be.true
+			expect(result.value).to.equal(10)
+		})
+
+		it("gets the value from catch on error", ({ expect }) => {
+			const result = Result.try(() => {
+				throw new Error("fail")
+			})
+				.catch(err => {
+					return err.message
+				})
+				.exec()
+			expect(result.isSuccess()).to.be.false
+			expect(result.reason).to.equal("fail")
+		})
+
+		it("ignores catch if try does not throw", ({ expect }) => {
+			const result = Result.try(() => {
+				const n = 5
+				return n * 2
+			})
+				.catch(err => {
+					throw new Error("Should not run")
+				})
+				.exec()
+			expect(result.isSuccess()).to.be.true
+			expect(result.value).to.equal(10)
+		})
+	})
 })
