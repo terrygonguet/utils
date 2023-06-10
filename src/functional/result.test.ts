@@ -15,6 +15,21 @@ describe.concurrent("Result", it => {
 		expect(failure.isFailure()).to.be.true
 	})
 
+	it("merge()", ({ expect }) => {
+		expect(
+			success.merge(
+				n => n + "",
+				reason => reason + "!",
+			),
+		).to.equal("5")
+		expect(
+			failure.merge(
+				n => n + "",
+				reason => reason + "!",
+			),
+		).to.equal("reason!")
+	})
+
 	it("map()", ({ expect }) => {
 		const mappedSuccess = success.map(n => n * 2)
 		expect(mappedSuccess.isSuccess()).to.be.true

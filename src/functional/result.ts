@@ -3,6 +3,7 @@ import { identity } from "./index.ts"
 interface API<S, F> {
 	isSuccess(this: Result<S, F>): this is Success<S, F>
 	isFailure(this: Result<S, F>): this is Failure<S, F>
+	merge<T>(this: Result<S, F>, f: (value: S) => T, g: (reason: F) => T): T
 	map<S2>(this: Result<S, F>, f: (value: S) => S2): Result<S2, F>
 	flatMap<S2, F2>(this: Result<S, F>, f: (value: S) => Result<S2, F | F2>): Result<S2, F | F2>
 	toJSON(this: Result<S, F>): Object
@@ -21,6 +22,9 @@ export function Success<S, F>(value: S): Success<S, F> {
 		{
 			isSuccess: () => true,
 			isFailure: () => false,
+			merge<T>(this: Success<S, F>, f: (value: S) => T) {
+				return f(this.value)
+			},
 			map<S2>(this: Success<S, F>, f: (value: S) => S2) {
 				return Success(f(this.value))
 			},
@@ -44,6 +48,9 @@ export function Failure<S, F>(reason: F): Failure<S, F> {
 		{
 			isSuccess: () => false,
 			isFailure: () => true,
+			merge<T>(this: Failure<S, F>, _: (value: S) => T, g: (reason: F) => T) {
+				return g(this.reason)
+			},
 			map<S2>(this: Failure<S, F>) {
 				return this as unknown as Result<S2, F>
 			},
