@@ -47,24 +47,39 @@ describe.concurrent("Maybe", it => {
 		expect(none.toJSON()).toMatchInlineSnapshot()
 	})
 
-	it("Maybe.JSONReviver()", ({ expect }) => {
+	describe.concurrent("Maybe.JSONReviver()", it => {
 		const $_kind = "@terrygonguet/utils/functional/maybe"
 		const $_variant_Some = "@terrygonguet/utils/functional/maybe/Some"
 		const $_variant_None = "@terrygonguet/utils/functional/maybe/None"
 
-		const json1 = `{"prop":"value"}`
-		const obj1 = JSON.parse(json1, Maybe.JSONReviver)
-		expect(obj1).to.deep.equal({ prop: "value" })
+		it("does nothing to normal objects", ({ expect }) => {
+			const json1 = `{"prop":"value"}`
+			const obj1 = JSON.parse(json1, Maybe.JSONReviver)
+			expect(obj1).to.deep.equal({ prop: "value" })
+		})
 
-		const json2 = `{"prop":"value","some":{"$_kind":"${$_kind}","$_variant":"${$_variant_Some}","value":5}}`
-		const obj2 = JSON.parse(json2, Maybe.JSONReviver)
-		expect(obj2.prop).to.equal("value")
-		expect(obj2.some.isSome()).to.be.true
-		expect(obj2.some.value).to.equal(5)
+		it("revives a Some", ({ expect }) => {
+			const json2 = `{"prop":"value","some":{"$_kind":"${$_kind}","$_variant":"${$_variant_Some}","value":5}}`
+			const obj2 = JSON.parse(json2, Maybe.JSONReviver)
+			expect(obj2.prop).to.equal("value")
+			expect(obj2.some.isSome()).to.be.true
+			expect(obj2.some.value).to.equal(5)
+		})
 
-		const json3 = `{"prop":"value","none":{"$_kind":"${$_kind}","$_variant":"${$_variant_None}"}}`
-		const obj3 = JSON.parse(json3, Maybe.JSONReviver)
-		expect(obj3.prop).to.equal("value")
-		expect(obj3.none).to.equal(None)
+		it("revives a None", ({ expect }) => {
+			const json3 = `{"prop":"value","none":{"$_kind":"${$_kind}","$_variant":"${$_variant_None}"}}`
+			const obj3 = JSON.parse(json3, Maybe.JSONReviver)
+			expect(obj3.prop).to.equal("value")
+			expect(obj3.none).to.equal(None)
+		})
+
+		it("does a round trip", ({ expect }) => {
+			const json4 = JSON.stringify({ prop: "value", some: Some(5), none: None })
+			const obj4 = JSON.parse(json4, Maybe.JSONReviver)
+			expect(obj4.prop).to.equal("value")
+			expect(obj4.some.isSome()).to.be.true
+			expect(obj4.some.value).to.equal(5)
+			expect(obj4.none).to.equal(None)
+		})
 	})
 })
