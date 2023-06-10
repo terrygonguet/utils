@@ -1,5 +1,10 @@
 lockfileVersion: '6.0'
 
+dependencies:
+  just-compose:
+    specifier: ^2.3.0
+    version: 2.3.0
+
 devDependencies:
   '@vitest/ui':
     specifier: ^0.32.0
@@ -527,6 +532,10 @@ packages:
   /jsonc-parser@3.2.0:
     resolution: {integrity: sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==}
     dev: true
+
+  /just-compose@2.3.0:
+    resolution: {integrity: sha512-HFtBU8GuHP+jHQN1ucJqpb+FpaWiLnLkUDXg7uTse2wdZOIQlOFsWwPE8PpAsmCbqHBq/XD7PovyF7y+OtcoVQ==}
+    dev: false
 
   /local-pkg@0.4.3:
     resolution: {integrity: sha512-SFppqq5p42fe2qcZQqqEOiVRXl+WCP1MdT6k7BDEW1j++sp5fIY+/fdRQitvKgB5BrBcmrs5m/L0v2FrU5MY1g==}

@@ -28,5 +28,8 @@
 			"types": "./types/functional/index.d.ts",
 			"import": "./dist/functional.js"
 		}
+	},
+	"dependencies": {
+		"just-compose": "^2.3.0"
 	}
 }
