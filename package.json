@@ -17,12 +17,16 @@
 	},
 	"exports": {
 		".": {
-			"types": "./dist/main.js",
-			"import": "./types/main.d.ts"
+			"types": "./types/main.js",
+			"import": "./dist/main.d.ts"
 		},
 		"./async": {
-			"types": "./dist/async.js",
-			"import": "./types/async.d.ts"
+			"types": "./types/async.js",
+			"import": "./dist/async.d.ts"
+		},
+		"./functional": {
+			"types": "./types/functional/index.d.ts",
+			"import": "./dist/functional.js"
 		}
 	}
 }

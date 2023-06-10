@@ -8,6 +8,7 @@ export default defineConfig({
 			entry: {
 				main: resolve(__dirname, "src/main.ts"),
 				async: resolve(__dirname, "src/async.ts"),
+				functional: resolve(__dirname, "src/functional/index.ts"),
 			},
 		},
 	},
