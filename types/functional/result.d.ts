@@ -26,6 +26,6 @@ declare class TryCatch<S, F> {
     catchFn: (err: unknown) => F;
     constructor(tryFn: () => S);
     catch(catchFn: (err: unknown) => F): this;
-    exec(): Result<S, F>;
+    exec(finallyFn?: (result: Result<S, F>) => void): Result<S, F>;
 }
 export {};
