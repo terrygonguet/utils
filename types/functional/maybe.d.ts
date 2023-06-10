@@ -11,8 +11,7 @@ export type Some<T> = {
 } & API<T>;
 export type None<T> = API<T>;
 export type Maybe<T> = Some<T> | None<T>;
-export declare function Some<T>(value: NonNullable<T>): Some<T>;
-export declare const None: None<any>;
+declare function Some<T>(value: NonNullable<T>): Some<T>;
 export declare const Maybe: {
     Some: typeof Some;
     None: None<any>;
