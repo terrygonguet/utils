@@ -59,6 +59,8 @@ export function Failure<S, F>(reason: F): Failure<S, F> {
 }
 
 export const Result = {
+	Success,
+	Failure,
 	try<S, F>(tryFn: () => S) {
 		return new TryCatch<S, F>(tryFn)
 	},
@@ -72,7 +74,7 @@ export const Result = {
 	},
 }
 
-class TryCatch<S, F> {
+export class TryCatch<S, F> {
 	tryFn: () => S
 	catchFn: (err: unknown) => F
 

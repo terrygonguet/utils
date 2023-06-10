@@ -2,10 +2,8 @@ import { describe } from "vitest"
 import { Some, None, Maybe } from "./maybe.ts"
 
 describe.concurrent("Maybe", it => {
-	/** @type {Maybe<number>} */
-	const some = Some(5)
-	/** @type {Maybe<number>} */
-	const none = None
+	const some: Maybe<number> = Some(5)
+	const none: Maybe<number> = None
 
 	it("isSome()", ({ expect }) => {
 		expect(some.isSome()).to.be.true
@@ -25,7 +23,7 @@ describe.concurrent("Maybe", it => {
 	it("map()", ({ expect }) => {
 		const mappedSome = some.map(n => n * 2)
 		expect(mappedSome.isSome()).to.be.true
-		expect(mappedSome.value).to.equal(10)
+		expect((mappedSome as Some<number>).value).to.equal(10)
 		const mappedNone = none.map(n => n * 2)
 		expect(mappedNone.isNone()).to.be.true
 	})
@@ -33,12 +31,12 @@ describe.concurrent("Maybe", it => {
 	it("flatMap()", ({ expect }) => {
 		const some1 = some.flatMap(n => Some(n * 2))
 		expect(some1.isSome()).to.be.true
-		expect(some1.value).to.equal(10)
-		const none1 = some.flatMap(n => None)
+		expect((some1 as Some<number>).value).to.equal(10)
+		const none1 = some.flatMap(_ => None)
 		expect(none1.isNone()).to.be.true
 		const some2 = none.flatMap(n => Some(n * 2))
 		expect(some2.isSome()).to.be.false
-		const none2 = some.flatMap(n => None)
+		const none2 = some.flatMap(_ => None)
 		expect(none2.isNone()).to.be.true
 	})
 

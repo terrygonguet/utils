@@ -2,7 +2,7 @@ import { identity } from "./index.ts"
 
 interface API<T> {
 	isSome(this: Maybe<T>): this is Some<T>
-	isNone(this: Maybe<T>): this is None
+	isNone(this: Maybe<T>): this is None<T>
 	orDefault(this: Maybe<T>, defaultValue: T): T
 	map<U>(this: Maybe<T>, f: (value: T) => U): Maybe<U>
 	flatMap<U>(this: Maybe<T>, f: (value: T) => Maybe<U>): Maybe<U>
@@ -10,8 +10,8 @@ interface API<T> {
 }
 
 export type Some<T> = { value: T } & API<T>
-export type None = {} & API<never>
-export type Maybe<T> = Some<T> | None
+export type None<T> = API<T>
+export type Maybe<T> = Some<T> | None<T>
 
 const $_kind = "@terrygonguet/utils/functional/maybe"
 const $_variant_Some = "@terrygonguet/utils/functional/maybe/Some"
@@ -41,20 +41,24 @@ export function Some<T>(value: NonNullable<T>): Some<T> {
 	})
 }
 
-const NonePrototype: API<never> = {
-	isSome: () => false,
-	isNone: () => true,
-	orDefault: identity,
-	map: () => None,
-	flatMap: () => None,
-	toJSON: () => ({ $_kind, $_variant: $_variant_None }),
-}
-export const None: None = Object.create(NonePrototype, {
-	$_kind: { value: $_kind, enumerable: false, writable: false },
-	$_variant: { value: $_variant_None, enumerable: false, writable: false },
-})
+export const None: None<never> = Object.create(
+	{
+		isSome: () => false,
+		isNone: () => true,
+		orDefault: identity,
+		map: () => None,
+		flatMap: () => None,
+		toJSON: () => ({ $_kind, $_variant: $_variant_None }),
+	},
+	{
+		$_kind: { value: $_kind, enumerable: false, writable: false },
+		$_variant: { value: $_variant_None, enumerable: false, writable: false },
+	},
+)
 
 export const Maybe = {
+	Some,
+	None,
 	from<T>(value: T | undefined | null): Maybe<T> {
 		switch (value) {
 			case null:

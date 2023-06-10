@@ -2,10 +2,8 @@ import { describe } from "vitest"
 import { Success, Failure, Result } from "./result.ts"
 
 describe.concurrent("Result", it => {
-	/** @type {Result<number, string>} */
-	const success = Success(5)
-	/** @type {Result<number, string>} */
-	const failure = Failure("reason")
+	const success: Result<number, string> = Success(5)
+	const failure: Result<number, string> = Failure("reason")
 
 	it("isSuccess()", ({ expect }) => {
 		expect(success.isSuccess()).to.be.true
@@ -20,7 +18,7 @@ describe.concurrent("Result", it => {
 	it("map()", ({ expect }) => {
 		const mappedSuccess = success.map(n => n * 2)
 		expect(mappedSuccess.isSuccess()).to.be.true
-		expect(mappedSuccess.value).to.equal(10)
+		expect((mappedSuccess as Success<number, string>).value).to.equal(10)
 		const mappedFailure = failure.map(n => n * 2)
 		expect(mappedFailure.isSuccess()).to.be.false
 	})
@@ -28,19 +26,19 @@ describe.concurrent("Result", it => {
 	it("flatMap()", ({ expect }) => {
 		const succ1 = success.flatMap(n => Success(n * 2))
 		expect(succ1.isSuccess()).to.be.true
-		expect(succ1.value).to.equal(10)
+		expect((succ1 as Success<number, string>).value).to.equal(10)
 
-		const fail1 = success.flatMap(n => Failure("fail"))
+		const fail1 = success.flatMap(_ => Failure("fail"))
 		expect(fail1.isSuccess()).to.be.false
-		expect(fail1.reason).to.equal("fail")
+		expect((fail1 as Failure<number, string>).reason).to.equal("fail")
 
 		const fail2 = failure.flatMap(n => Success(n * 2))
 		expect(fail2.isSuccess()).to.be.false
-		expect(fail2.reason).to.equal("reason")
+		expect((fail2 as Failure<number, string>).reason).to.equal("reason")
 
-		const fail3 = failure.flatMap(n => Failure("fail"))
+		const fail3 = failure.flatMap(_ => Failure("fail"))
 		expect(fail3.isSuccess()).to.be.false
-		expect(fail3.reason).to.equal("reason")
+		expect((fail3 as Failure<number, string>).reason).to.equal("reason")
 	})
 
 	it("toJSON()", ({ expect }) => {
@@ -61,10 +59,6 @@ describe.concurrent("Result", it => {
 	})
 
 	describe.concurrent("Result.JSONReviver()", it => {
-		const $_kind = "@terrygonguet/utils/functional/result"
-		const $_variant_Success = "@terrygonguet/utils/functional/result/Success"
-		const $_variant_Failure = "@terrygonguet/utils/functional/result/Failure"
-
 		it("does nothing to normal objects", ({ expect }) => {
 			const json = `{"prop":"value"}`
 			const obj = JSON.parse(json, Result.JSONReviver)
@@ -119,7 +113,7 @@ describe.concurrent("Result", it => {
 				return n * 2
 			}).exec()
 			expect(result.isSuccess()).to.be.true
-			expect(result.value).to.equal(10)
+			expect((result as Success<number, string>).value).to.equal(10)
 		})
 
 		it("gets the value from catch on error", ({ expect }) => {
@@ -127,11 +121,11 @@ describe.concurrent("Result", it => {
 				throw new Error("fail")
 			})
 				.catch(err => {
-					return err.message
+					return (err as Error).message
 				})
 				.exec()
 			expect(result.isSuccess()).to.be.false
-			expect(result.reason).to.equal("fail")
+			expect((result as Failure<number, string>).reason).to.equal("fail")
 		})
 
 		it("ignores catch if try does not throw", ({ expect }) => {
@@ -139,12 +133,12 @@ describe.concurrent("Result", it => {
 				const n = 5
 				return n * 2
 			})
-				.catch(err => {
+				.catch(_ => {
 					throw new Error("Should not run")
 				})
 				.exec()
 			expect(result.isSuccess()).to.be.true
-			expect(result.value).to.equal(10)
+			expect((result as Success<number, string>).value).to.equal(10)
 		})
 	})
 })

@@ -31,7 +31,7 @@ describe.concurrent("safeParse()", it => {
 
 	it("uses revivers", ({ expect }) => {
 		const json = `{"prop":"value","other":"ignored"}`
-		function reviver(key, value) {
+		function reviver(key: string, value: any) {
 			if (key == "prop") return "replaced"
 			else return value
 		}
