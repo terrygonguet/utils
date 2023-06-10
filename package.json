@@ -1,6 +1,6 @@
 {
 	"name": "@terrygonguet/utils",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -23,12 +23,12 @@
 	],
 	"exports": {
 		".": {
-			"types": "./types/main.js",
-			"import": "./dist/main.d.ts"
+			"types": "./types/main.d.ts",
+			"import": "./dist/main.js"
 		},
 		"./async": {
-			"types": "./types/async.js",
-			"import": "./dist/async.d.ts"
+			"types": "./types/async.d.ts",
+			"import": "./dist/async.js"
 		},
 		"./functional": {
 			"types": "./types/functional/index.d.ts",
