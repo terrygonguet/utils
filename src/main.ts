@@ -1,3 +1,5 @@
+import { constant } from "./functional/index.ts"
+
 /**
  * Behaviour is undefined when max < min
  */
@@ -21,5 +23,41 @@ export function composeJSONRevivers(...revivers: JSONReviver[]): JSONReviver {
 			value = reviver(key, value)
 		}
 		return value
+	}
+}
+
+export function createNoopProxy<T>() {
+	const noop = () => proxy
+	const no = constant(false)
+	const yes = constant(true)
+	const proxy: any = new Proxy(() => {}, {
+		get: noop,
+		set: noop,
+		apply: noop,
+		construct: noop,
+		deleteProperty: yes,
+		has: yes,
+		preventExtensions: no,
+		defineProperty: no,
+	})
+	return proxy as T
+}
+
+export function noop() {}
+
+export function exhaustive(_: never): never {
+	throw new Error("This should never be called")
+}
+
+export async function hash(message: string) {
+	const encoder = new TextEncoder()
+	const data = encoder.encode(message)
+	const hash = await crypto.subtle.digest("SHA-1", data)
+	return hash
+}
+
+export function* range(start: number, end: number, step = 1) {
+	for (let i = start; i < end; i += step) {
+		yield i
 	}
 }

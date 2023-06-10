@@ -1,5 +1,14 @@
 import { describe } from "vitest"
-import { clamp, safeParse, composeJSONRevivers } from "./main.ts"
+import {
+	clamp,
+	safeParse,
+	composeJSONRevivers,
+	createNoopProxy,
+	noop,
+	exhaustive,
+	hash,
+	range,
+} from "./main.ts"
 import { Maybe, Result } from "./functional/index.ts"
 
 describe.concurrent("clamp()", it => {
@@ -83,5 +92,67 @@ describe.concurrent("combineJSONRevivers()", it => {
 		expect(obj.result.success.value).to.equal(5)
 		expect(obj.result.failure.isSuccess()).to.be.false
 		expect(obj.result.failure.reason).to.equal("fail")
+	})
+})
+
+describe.concurrent("createNoopProxy()", it => {
+	const proxy = createNoopProxy<any>()
+
+	it("does nothing recursively", ({ expect }) => {
+		expect(proxy.prop).to.equal(proxy)
+		expect(proxy()).to.equal(proxy)
+	})
+
+	it("fakes deleting properties", ({ expect }) => {
+		expect(delete proxy.prop).to.be.true
+	})
+
+	it("lies about having any property", ({ expect }) => {
+		expect("prop" in proxy).to.be.true
+	})
+
+	it("prevents creating a child class", ({ expect }) => {
+		expect(() => {
+			class test extends proxy {}
+			new test()
+		}).to.throw(TypeError)
+	})
+
+	it("prevents defining properties", ({ expect }) => {
+		expect(() => Object.defineProperty(proxy, "prop", { value: "value" })).to.throw(TypeError)
+	})
+})
+
+describe.concurrent("noop()", it => {
+	it("does nothing", ({ expect }) => {
+		expect(noop()).to.be.undefined
+	})
+})
+
+describe.concurrent("exhaustive()", it => {
+	it("throws", ({ expect }) => {
+		expect(exhaustive).to.throw("This should never be called")
+	})
+})
+
+describe.concurrent("hash()", it => {
+	it("does the crypto stuff", async ({ expect }) => {
+		const buff = await hash("Some message")
+		const bytes = new Uint8Array(buff)
+		expect(bytes.toString()).toMatchInlineSnapshot(
+			'"35,148,215,25,180,1,235,141,243,236,123,23,12,212,205,136,182,122,9,122"',
+		)
+	})
+})
+
+describe.concurrent("range()", it => {
+	it("returns a range", ({ expect }) => {
+		const arr = [...range(0, 5)]
+		expect(arr).to.deep.equal([0, 1, 2, 3, 4])
+	})
+
+	it("respects step", ({ expect }) => {
+		const arr = [...range(0, 5, 2)]
+		expect(arr).to.deep.equal([0, 2, 4])
 	})
 })
