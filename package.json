@@ -1,7 +1,13 @@
 {
 	"name": "@terrygonguet/utils",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"type": "module",
+	"module": "./dist/main.js",
+	"author": {
+		"email": "terry@gonguet.com",
+		"name": "Terry Gonguet",
+		"url": "https://terry.gonguet.com/"
+	},
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
@@ -35,7 +41,15 @@
 			"import": "./dist/functional.js"
 		}
 	},
+	"types": "./types/main.d.ts",
 	"dependencies": {
 		"just-compose": "^2.3.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/terrygonguet/utils.git"
+	},
+	"bugs": {
+		"url": "https://github.com/terrygonguet/utils/issues"
 	}
 }
