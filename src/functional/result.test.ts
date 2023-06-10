@@ -104,6 +104,24 @@ describe.concurrent("Result", it => {
 			expect(obj.failure.isSuccess()).to.be.false
 			expect(obj.failure.reason).to.equal("reason")
 		})
+
+		it("ignores unknown variants", ({ expect }) => {
+			const json = `{
+				"prop":"value",
+				"failure": {
+					"$_kind": "@terrygonguet/utils/functional/result",
+					"$_variant": "@terrygonguet/utils/functional/result/Unknown",
+					"reason": "reason"
+				}
+			}`
+			const obj = JSON.parse(json, Result.JSONReviver)
+			expect(obj.prop).to.equal("value")
+			expect(obj.failure).to.deep.equal({
+				$_kind: "@terrygonguet/utils/functional/result",
+				$_variant: "@terrygonguet/utils/functional/result/Unknown",
+				reason: "reason",
+			})
+		})
 	})
 
 	describe("Result.try()", it => {

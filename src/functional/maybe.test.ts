@@ -45,6 +45,27 @@ describe.concurrent("Maybe", it => {
 		expect(none.toJSON()).toMatchInlineSnapshot()
 	})
 
+	describe.concurrent("Maybe.from()", it => {
+		it("wraps values in a Some", ({ expect }) => {
+			const some1 = Maybe.from(5)
+			expect(some1.isSome()).to.be.true
+			expect(some1.orDefault(10)).to.equal(5)
+			const some2 = Maybe.from({ prop: "value" })
+			expect(some2.isSome()).to.be.true
+			expect(some2.orDefault({ prop: "default" })).to.deep.equal({ prop: "value" })
+			const some3 = Maybe.from([1, 2, 3])
+			expect(some3.isSome()).to.be.true
+			expect(some3.orDefault([4, 5, 6])).to.deep.equal([1, 2, 3])
+		})
+
+		it("wraps null & undefined in None", ({ expect }) => {
+			const none1 = Maybe.from(null)
+			expect(none1.isNone()).to.be.true
+			const none2 = Maybe.from(undefined)
+			expect(none2.isNone()).to.be.true
+		})
+	})
+
 	describe.concurrent("Maybe.JSONReviver()", it => {
 		const $_kind = "@terrygonguet/utils/functional/maybe"
 		const $_variant_Some = "@terrygonguet/utils/functional/maybe/Some"
@@ -78,6 +99,24 @@ describe.concurrent("Maybe", it => {
 			expect(obj4.some.isSome()).to.be.true
 			expect(obj4.some.value).to.equal(5)
 			expect(obj4.none).to.equal(None)
+		})
+
+		it("ignores unknown variants", ({ expect }) => {
+			const json = `{
+				"prop":"value",
+				"some": {
+					"$_kind": "@terrygonguet/utils/functional/maybe",
+					"$_variant": "@terrygonguet/utils/functional/maybe/Unknown",
+					"value": 5
+				}
+			}`
+			const obj = JSON.parse(json, Maybe.JSONReviver)
+			expect(obj.prop).to.equal("value")
+			expect(obj.some).to.deep.equal({
+				$_kind: "@terrygonguet/utils/functional/maybe",
+				$_variant: "@terrygonguet/utils/functional/maybe/Unknown",
+				value: 5,
+			})
 		})
 	})
 })
