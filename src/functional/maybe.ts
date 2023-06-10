@@ -4,6 +4,8 @@ interface API<T> {
 	isSome(this: Maybe<T>): this is Some<T>
 	isNone(this: Maybe<T>): this is None
 	orDefault(this: Maybe<T>, defaultValue: T): T
+	map<U>(this: Maybe<T>, f: (value: T) => U): Maybe<U>
+	flatMap<U>(this: Maybe<T>, f: (value: T) => Maybe<U>): Maybe<U>
 }
 
 export type Some<T> = { value: T } & API<T>
@@ -21,6 +23,12 @@ export function Some<T>(value: NonNullable<T>): Some<T> {
 		orDefault(this: Some<T>) {
 			return this.value
 		},
+		map(this: Some<T>, f) {
+			return Some(f(this.value)!)
+		},
+		flatMap(this: Some<T>, f) {
+			return f(this.value)
+		},
 	}
 	return Object.create(SomePrototype, {
 		$_kind: { value: $_kind, enumerable: false, writable: false },
@@ -33,6 +41,8 @@ const NonePrototype: API<never> = {
 	isSome: () => false,
 	isNone: () => true,
 	orDefault: identity,
+	map: () => None,
+	flatMap: () => None,
 }
 export const None: None = Object.create(NonePrototype, {
 	$_kind: { value: $_kind, enumerable: false, writable: false },
