@@ -12,4 +12,9 @@ export default defineConfig({
 			},
 		},
 	},
+	test: {
+		coverage: {
+			reporter: ["lcov", "html"],
+		},
+	},
 })
