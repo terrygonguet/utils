@@ -19,6 +19,7 @@ export declare const Result: {
     Success: typeof Success;
     Failure: typeof Failure;
     try<S, F>(tryFn: () => S): TryCatch<S, F>;
+    fromPromise<S_1, F_1>(promise: Promise<S_1>, onResolve: (value: S_1) => S_1, onReject: (reason: unknown) => F_1): Promise<Result<S_1, F_1>>;
     JSONReviver(_key: string, value: any): any;
 };
 declare class TryCatch<S, F> {

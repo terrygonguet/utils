@@ -16,6 +16,11 @@ export declare const Maybe: {
     Some: typeof Some;
     None: None<any>;
     from<T>(value: T | null | undefined): Maybe<T>;
+    /**
+     * CAUTION: this method swallows errors and simply returns None!
+     * Use `Result.fromPromise()` if you need error details.
+     */
+    fromPromise<T_1>(promise: Promise<T_1>, onResolve?: (value: T_1) => T_1): Promise<Maybe<T_1>>;
     JSONReviver(_key: string, value: any): any;
 };
 export {};
