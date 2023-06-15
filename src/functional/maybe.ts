@@ -1,4 +1,4 @@
-import { identity } from "./index.ts"
+import { compose, constant, identity } from "./index.ts"
 
 interface API<T> {
 	isSome(this: Maybe<T>): this is Some<T>
@@ -69,6 +69,13 @@ export const Maybe = {
 			default:
 				return Some(value!)
 		}
+	},
+	/**
+	 * CAUTION: this method swallows errors and simply returns None!
+	 * Use `Result.fromPromise()` if you need error details.
+	 */
+	fromPromise<T>(promise: Promise<T>, onResolve: (value: T) => T = identity): Promise<Maybe<T>> {
+		return promise.then(compose(onResolve, Maybe.from), constant(None))
 	},
 	JSONReviver(_key: string, value: any) {
 		if (value?.$_kind == $_kind) {

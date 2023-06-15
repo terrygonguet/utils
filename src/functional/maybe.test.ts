@@ -66,6 +66,22 @@ describe.concurrent("Maybe", it => {
 		})
 	})
 
+	describe.concurrent("Maybe.fromPromise()", it => {
+		it("wraps return values in a Some", async ({ expect }) => {
+			const promise = Promise.resolve(5)
+			const maybe = await Maybe.fromPromise(promise, n => n * 2)
+			expect(maybe.isSome()).to.be.true
+			expect(maybe.orDefault(0)).to.equal(10)
+		})
+
+		it("swallows errors and returns None", async ({ expect }) => {
+			const promise = Promise.reject<number>("reason")
+			const maybe = await Maybe.fromPromise(promise, n => n * 2)
+			expect(maybe.isSome()).to.be.false
+			expect(maybe.orDefault(0)).to.equal(0)
+		})
+	})
+
 	describe.concurrent("Maybe.JSONReviver()", it => {
 		const $_kind = "@terrygonguet/utils/functional/maybe"
 		const $_variant_Some = "@terrygonguet/utils/functional/maybe/Some"
