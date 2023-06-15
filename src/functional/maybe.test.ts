@@ -1,5 +1,6 @@
 import { describe } from "vitest"
 import { Maybe, type Some } from "./maybe.ts"
+import { constant, identity } from "./index.ts"
 
 describe.concurrent("Maybe", it => {
 	const some: Maybe<number> = Maybe.Some(5)
@@ -38,6 +39,16 @@ describe.concurrent("Maybe", it => {
 		expect(some2.isSome()).to.be.false
 		const none2 = some.flatMap(_ => Maybe.None)
 		expect(none2.isNone()).to.be.true
+	})
+
+	it("toResult()", ({ expect }) => {
+		const mapNone = constant("reason")
+		const success = Maybe.Some(5).toResult(mapNone)
+		const failure = Maybe.None.toResult(mapNone)
+		expect(success.isSuccess()).to.be.true
+		expect(failure.isFailure()).to.be.true
+		expect(success.merge(n => n.toString(), identity)).to.equal("5")
+		expect(failure.merge(n => n.toString(), identity)).to.equal("reason")
 	})
 
 	it("toJSON()", ({ expect }) => {

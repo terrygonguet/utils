@@ -1,4 +1,5 @@
 import { compose, identity } from "./index.ts"
+import { Maybe } from "./maybe.ts"
 
 interface API<S, F> {
 	isSuccess(this: Result<S, F>): this is Success<S, F>
@@ -81,6 +82,9 @@ export const Result = {
 		onReject: (reason: unknown) => F,
 	): Promise<Result<S, F>> {
 		return promise.then(compose(onResolve, Success<S, F>), compose(onReject, Failure<S, F>))
+	},
+	fromMaybe<S, F>(maybe: Maybe<S>, mapNone?: () => F) {
+		return maybe.toResult(mapNone)
 	},
 	JSONReviver(_key: string, value: any) {
 		if (value?.$_kind == $_kind) {

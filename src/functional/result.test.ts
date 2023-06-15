@@ -1,5 +1,7 @@
 import { describe } from "vitest"
 import { type Success, type Failure, Result } from "./result.ts"
+import { Maybe } from "./maybe.ts";
+import { constant, identity } from "./index.ts"
 
 describe.concurrent("Result", it => {
 	const success: Result<number, string> = Result.Success(5)
@@ -170,6 +172,22 @@ describe.concurrent("Result", it => {
 					reason => reason,
 				),
 			).to.equal("reason")
+		})
+	})
+
+	describe.concurrent("Result.fromMaybe()", it => {
+		const mapNone = constant("reason")
+
+		it("converts Some to Result", ({ expect }) => {
+			const success = Result.fromMaybe(Maybe.Some(5), mapNone)
+			expect(success.isSuccess()).to.be.true
+			expect(success.merge(n => n.toString(), identity)).to.equal("5")
+		})
+
+		it("converts None to Failure, populated by function", ({ expect }) => {
+			const failure = Result.fromMaybe(Maybe.None, mapNone)
+			expect(failure.isFailure()).to.be.true
+			expect(failure.merge(n => n.toString(), identity)).to.equal("reason")
 		})
 	})
 

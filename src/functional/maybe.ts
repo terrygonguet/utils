@@ -1,4 +1,5 @@
 import { compose, constant, identity } from "./index.ts"
+import { Result } from "./result.ts"
 
 interface API<T> {
 	isSome(this: Maybe<T>): this is Some<T>
@@ -6,6 +7,7 @@ interface API<T> {
 	orDefault(this: Maybe<T>, defaultValue: T): T
 	map<U>(this: Maybe<T>, f: (value: T) => U): Maybe<U>
 	flatMap<U>(this: Maybe<T>, f: (value: T) => Maybe<U>): Maybe<U>
+	toResult<U>(this: Maybe<T>, mapNone?: () => U): Result<T, U>
 	toJSON(this: Maybe<T>): Object
 }
 
@@ -31,6 +33,9 @@ function Some<T>(value: NonNullable<T>): Some<T> {
 			flatMap(this: Some<T>, f) {
 				return f(this.value)
 			},
+			toResult(this: Some<T>) {
+				return Result.Success(this.value)
+			},
 			toJSON(this: Some<T>) {
 				return { $_kind, $_variant: $_variant_Some, value: this.value }
 			},
@@ -47,9 +52,10 @@ const None: None<any> = Object.create(
 	{
 		isSome: () => false,
 		isNone: () => true,
-		orDefault: identity,
+		orDefault: defaultValue => defaultValue,
 		map: () => None,
 		flatMap: () => None,
+		toResult: mapNone => Result.Failure(mapNone?.()),
 		toJSON: () => ({ $_kind, $_variant: $_variant_None }),
 	} as API<any>,
 	{
