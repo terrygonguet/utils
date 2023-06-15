@@ -1,3 +1,4 @@
+import { Maybe } from "./maybe.ts";
 interface API<S, F> {
     isSuccess(this: Result<S, F>): this is Success<S, F>;
     isFailure(this: Result<S, F>): this is Failure<S, F>;
@@ -20,6 +21,7 @@ export declare const Result: {
     Failure: typeof Failure;
     try<S, F>(tryFn: () => S): TryCatch<S, F>;
     fromPromise<S_1, F_1>(promise: Promise<S_1>, onResolve: (value: S_1) => S_1, onReject: (reason: unknown) => F_1): Promise<Result<S_1, F_1>>;
+    fromMaybe<S_2, F_2>(maybe: Maybe<S_2>, mapNone?: (() => F_2) | undefined): Result<S_2, F_2>;
     JSONReviver(_key: string, value: any): any;
 };
 declare class TryCatch<S, F> {
