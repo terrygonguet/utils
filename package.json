@@ -29,16 +29,19 @@
 	],
 	"exports": {
 		".": {
-			"types": "./types/main.d.ts",
 			"import": "./dist/main.js"
 		},
 		"./async": {
-			"types": "./types/async.d.ts",
 			"import": "./dist/async.js"
 		},
 		"./functional": {
-			"types": "./types/functional/index.d.ts",
 			"import": "./dist/functional.js"
+		}
+	},
+	"typesVersions": {
+		"*": {
+			"async": ["./types/async.d.ts"],
+			"functional": ["./types/functional/index.d.ts"]
 		}
 	},
 	"types": "./types/main.d.ts",
