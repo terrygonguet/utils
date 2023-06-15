@@ -1,4 +1,4 @@
-import { identity } from "./index.ts"
+import { compose, identity } from "./index.ts"
 
 interface API<S, F> {
 	isSuccess(this: Result<S, F>): this is Success<S, F>
@@ -74,6 +74,13 @@ export const Result = {
 	Failure,
 	try<S, F>(tryFn: () => S) {
 		return new TryCatch<S, F>(tryFn)
+	},
+	fromPromise<S, F>(
+		promise: Promise<S>,
+		onResolve: (value: S) => S,
+		onReject: (reason: unknown) => F,
+	): Promise<Result<S, F>> {
+		return promise.then(compose(onResolve, Success<S, F>), compose(onReject, Failure<S, F>))
 	},
 	JSONReviver(_key: string, value: any) {
 		if (value?.$_kind == $_kind) {

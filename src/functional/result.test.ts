@@ -139,6 +139,40 @@ describe.concurrent("Result", it => {
 		})
 	})
 
+	describe.concurrent("Result.fromPromise()", it => {
+		it("wraps return values in a Success", async ({ expect }) => {
+			const promise = Promise.resolve(5)
+			const result = await Result.fromPromise(
+				promise,
+				n => n * 2,
+				reason => reason,
+			)
+			expect(result.isSuccess()).to.be.true
+			expect(
+				result.merge(
+					n => n.toString(),
+					reason => reason,
+				),
+			).to.equal("10")
+		})
+
+		it("wraps errors in Failure", async ({ expect }) => {
+			const promise = Promise.reject<number>("reason")
+			const result = await Result.fromPromise(
+				promise,
+				n => n * 2,
+				reason => reason,
+			)
+			expect(result.isSuccess()).to.be.false
+			expect(
+				result.merge(
+					n => n.toString(),
+					reason => reason,
+				),
+			).to.equal("reason")
+		})
+	})
+
 	describe("Result.try()", it => {
 		it("gets the value from the try function", ({ expect }) => {
 			const result = Result.try(() => {
