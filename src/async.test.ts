@@ -1,9 +1,11 @@
 import { describe } from "vitest"
-import { wait } from "./async.ts"
+import { pause } from "./async.ts"
 
-describe("wait", it => {
-	it("Waits", async ({ expect }) => {
-		// TODO: figure out how to test that
-		await expect(wait(25)).resolves
+describe("pause()", it => {
+	it("Pauses", async ({ expect }) => {
+		const start = performance.now()
+		await pause(25)
+		const delta = performance.now() - start
+		expect(delta).to.be.greaterThanOrEqual(25)
 	})
 })
