@@ -1,1 +1,1 @@
-export declare function wait(ms: number): Promise<void>;
+export declare function pause(ms: number): Promise<void>;
