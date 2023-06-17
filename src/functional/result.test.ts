@@ -215,7 +215,7 @@ describe.concurrent("Result", it => {
 		})
 
 		it("gets the value from catch on error", ({ expect }) => {
-			const result = Result.try(() => {
+			const result = Result.try<number, string>(() => {
 				throw new Error("fail")
 			})
 				.catch(err => {
@@ -240,7 +240,7 @@ describe.concurrent("Result", it => {
 		})
 
 		it("runs finally no matter what", ({ expect }) => {
-			Result.try(() => {
+			Result.try<number, string>(() => {
 				const n = 5
 				return n * 2
 			})
@@ -252,7 +252,7 @@ describe.concurrent("Result", it => {
 					expect((result as Success<number, string>).value).to.equal(10)
 				})
 
-			Result.try(() => {
+			Result.try<number, string>(() => {
 				throw new Error("fail")
 			})
 				.catch(err => {
