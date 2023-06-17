@@ -2,6 +2,7 @@ import { Maybe } from "./maybe.ts";
 export * from "./maybe.ts";
 export * from "./result.ts";
 export { default as compose } from "just-compose";
+export { default as pipe } from "just-pipe";
 export declare function identity<T>(value: T): T;
 export declare function constant<T>(value: T): () => T;
 export declare function at(idx: number): <T>(data: T[]) => Maybe<T>;
