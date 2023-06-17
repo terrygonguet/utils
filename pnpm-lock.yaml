@@ -1,9 +1,16 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
 
 dependencies:
   just-compose:
     specifier: ^2.3.0
     version: 2.3.0
+  just-pipe:
+    specifier: ^1.0.0
+    version: 1.0.0
 
 devDependencies:
   '@vitest/coverage-v8':
@@ -697,6 +704,10 @@ packages:
 
   /just-compose@2.3.0:
     resolution: {integrity: sha512-HFtBU8GuHP+jHQN1ucJqpb+FpaWiLnLkUDXg7uTse2wdZOIQlOFsWwPE8PpAsmCbqHBq/XD7PovyF7y+OtcoVQ==}
+    dev: false
+
+  /just-pipe@1.0.0:
+    resolution: {integrity: sha512-KVzKqwS6JPk4lXuQFh+3wU0Me99szjdk/KXQbqqz4kbe+gFLi/tF1ksEZJFLGCIoeUMyMXGKHTZl+M2NYotbbQ==}
     dev: false
 
   /local-pkg@0.4.3:
