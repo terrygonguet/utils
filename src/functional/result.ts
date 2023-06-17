@@ -70,6 +70,12 @@ function Failure<S, F>(reason: F): Failure<S, F> {
 	)
 }
 
+function resultFromMaybe<S>(maybe: Maybe<S>): Result<S, undefined>
+function resultFromMaybe<S, F>(maybe: Maybe<S>, mapNone: () => F): Result<S, F>
+function resultFromMaybe<S, F>(maybe: Maybe<S>, mapNone?: () => F) {
+	return mapNone ? maybe.toResult(mapNone) : maybe.toResult()
+}
+
 export const Result = {
 	Success,
 	Failure,
@@ -83,9 +89,7 @@ export const Result = {
 	): Promise<Result<S, F>> {
 		return promise.then(compose(onResolve, Success<S, F>), compose(onReject, Failure<S, F>))
 	},
-	fromMaybe<S, F>(maybe: Maybe<S>, mapNone?: () => F) {
-		return maybe.toResult(mapNone)
-	},
+	fromMaybe: resultFromMaybe,
 	JSONReviver(_key: string, value: any) {
 		if (value?.$_kind == $_kind) {
 			const $_variant = value?.$_variant

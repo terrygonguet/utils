@@ -16,12 +16,14 @@ export type Failure<S, F> = {
 export type Result<S, F> = Success<S, F> | Failure<S, F>;
 declare function Success<S, F>(value: S): Success<S, F>;
 declare function Failure<S, F>(reason: F): Failure<S, F>;
+declare function resultFromMaybe<S>(maybe: Maybe<S>): Result<S, undefined>;
+declare function resultFromMaybe<S, F>(maybe: Maybe<S>, mapNone: () => F): Result<S, F>;
 export declare const Result: {
     Success: typeof Success;
     Failure: typeof Failure;
     try<S, F>(tryFn: () => S): TryCatch<S, F>;
     fromPromise<S_1, F_1>(promise: Promise<S_1>, onResolve: (value: S_1) => S_1, onReject: (reason: unknown) => F_1): Promise<Result<S_1, F_1>>;
-    fromMaybe<S_2, F_2>(maybe: Maybe<S_2>, mapNone?: (() => F_2) | undefined): Result<S_2, F_2>;
+    fromMaybe: typeof resultFromMaybe;
     JSONReviver(_key: string, value: any): any;
 };
 declare class TryCatch<S, F> {

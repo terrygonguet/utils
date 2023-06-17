@@ -7,7 +7,8 @@ interface API<T> {
 	orDefault(this: Maybe<T>, defaultValue: T): T
 	map<U>(this: Maybe<T>, f: (value: T) => U): Maybe<U>
 	flatMap<U>(this: Maybe<T>, f: (value: T) => Maybe<U>): Maybe<U>
-	toResult<U>(this: Maybe<T>, mapNone?: () => U): Result<T, U>
+	toResult(this: Maybe<T>): Result<T, undefined>
+	toResult<U>(this: Maybe<T>, mapNone: () => U): Result<T, U>
 	toJSON(this: Maybe<T>): Object
 }
 
@@ -34,12 +35,12 @@ function Some<T>(value: NonNullable<T>): Some<T> {
 				return f(this.value)
 			},
 			toResult(this: Some<T>) {
-				return Result.Success(this.value)
+				return Result.Success<T, any>(this.value)
 			},
 			toJSON(this: Some<T>) {
 				return { $_kind, $_variant: $_variant_Some, value: this.value }
 			},
-		} as API<T>,
+		} satisfies API<T>,
 		{
 			$_kind: { value: $_kind, enumerable: false, writable: false },
 			$_variant: { value: $_variant_Some, enumerable: false, writable: false },
@@ -55,9 +56,9 @@ const None: None<any> = Object.create(
 		orDefault: defaultValue => defaultValue,
 		map: () => None,
 		flatMap: () => None,
-		toResult: mapNone => Result.Failure(mapNone?.()),
+		toResult: <U>(mapNone?: () => U) => Result.Failure(mapNone?.()),
 		toJSON: () => ({ $_kind, $_variant: $_variant_None }),
-	} as API<any>,
+	} satisfies API<any>,
 	{
 		$_kind: { value: $_kind, enumerable: false, writable: false },
 		$_variant: { value: $_variant_None, enumerable: false, writable: false },

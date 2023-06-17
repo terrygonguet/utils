@@ -5,7 +5,8 @@ interface API<T> {
     orDefault(this: Maybe<T>, defaultValue: T): T;
     map<U>(this: Maybe<T>, f: (value: T) => U): Maybe<U>;
     flatMap<U>(this: Maybe<T>, f: (value: T) => Maybe<U>): Maybe<U>;
-    toResult<U>(this: Maybe<T>, mapNone?: () => U): Result<T, U>;
+    toResult(this: Maybe<T>): Result<T, undefined>;
+    toResult<U>(this: Maybe<T>, mapNone: () => U): Result<T, U>;
     toJSON(this: Maybe<T>): Object;
 }
 export type Some<T> = {
