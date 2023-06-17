@@ -70,7 +70,7 @@ describe.concurrent("combineJSONRevivers()", it => {
 			other: "ignored",
 			maybe: {
 				some: Maybe.Some(5),
-				none: Maybe.None,
+				none: Maybe.None(),
 			},
 			result: {
 				success: Result.Success(5),

@@ -198,7 +198,7 @@ describe.concurrent("Result", it => {
 		})
 
 		it("converts None to Failure, populated by function", ({ expect }) => {
-			const failure = Result.fromMaybe(Maybe.None, mapNone)
+			const failure = Result.fromMaybe(Maybe.None<number>(), mapNone)
 			expect(failure.isFailure()).to.be.true
 			expect(failure.merge(n => n.toString(), identity)).to.equal("reason")
 		})

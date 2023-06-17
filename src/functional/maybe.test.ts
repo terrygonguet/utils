@@ -4,7 +4,7 @@ import { constant, identity } from "./index.ts"
 
 describe.concurrent("Maybe", it => {
 	const some: Maybe<number> = Maybe.Some(5)
-	const none: Maybe<number> = Maybe.None
+	const none: Maybe<number> = Maybe.None()
 
 	it("isSome()", ({ expect }) => {
 		expect(some.isSome()).to.be.true
@@ -33,18 +33,18 @@ describe.concurrent("Maybe", it => {
 		const some1 = some.flatMap(n => Maybe.Some(n * 2))
 		expect(some1.isSome()).to.be.true
 		expect((some1 as Some<number>).value).to.equal(10)
-		const none1 = some.flatMap(_ => Maybe.None)
+		const none1 = some.flatMap(_ => Maybe.None())
 		expect(none1.isNone()).to.be.true
 		const some2 = none.flatMap(n => Maybe.Some(n * 2))
 		expect(some2.isSome()).to.be.false
-		const none2 = some.flatMap(_ => Maybe.None)
+		const none2 = some.flatMap(_ => Maybe.None())
 		expect(none2.isNone()).to.be.true
 	})
 
 	it("toResult()", ({ expect }) => {
 		const mapNone = constant("reason")
 		const success = Maybe.Some(5).toResult(mapNone)
-		const failure = Maybe.None.toResult(mapNone)
+		const failure = Maybe.None<number>().toResult(mapNone)
 		expect(success.isSuccess()).to.be.true
 		expect(failure.isFailure()).to.be.true
 		expect(success.merge(n => n.toString(), identity)).to.equal("5")
@@ -116,16 +116,16 @@ describe.concurrent("Maybe", it => {
 			const json3 = `{"prop":"value","none":{"$_kind":"${$_kind}","$_variant":"${$_variant_None}"}}`
 			const obj3 = JSON.parse(json3, Maybe.JSONReviver)
 			expect(obj3.prop).to.equal("value")
-			expect(obj3.none).to.equal(Maybe.None)
+			expect(obj3.none).to.equal(Maybe.None())
 		})
 
 		it("does a round trip", ({ expect }) => {
-			const json4 = JSON.stringify({ prop: "value", some: Maybe.Some(5), none: Maybe.None })
+			const json4 = JSON.stringify({ prop: "value", some: Maybe.Some(5), none: Maybe.None() })
 			const obj4 = JSON.parse(json4, Maybe.JSONReviver)
 			expect(obj4.prop).to.equal("value")
 			expect(obj4.some.isSome()).to.be.true
 			expect(obj4.some.value).to.equal(5)
-			expect(obj4.none).to.equal(Maybe.None)
+			expect(obj4.none).to.equal(Maybe.None())
 		})
 
 		it("ignores unknown variants", ({ expect }) => {

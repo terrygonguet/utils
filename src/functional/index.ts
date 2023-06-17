@@ -36,10 +36,10 @@ export function findIndex<T>(dataOrPredicate: T[] | Predicate<T>, predicate?: Pr
 	if (typeof dataOrPredicate == "function") {
 		return (data: T[]) => {
 			const idx = data.findIndex(dataOrPredicate)
-			return idx == -1 ? Maybe.None : Maybe.Some(idx)
+			return idx == -1 ? Maybe.None<number>() : Maybe.Some(idx)
 		}
 	} else {
 		const idx = dataOrPredicate.findIndex(predicate!)
-		return idx == -1 ? Maybe.None : Maybe.Some(idx)
+		return idx == -1 ? Maybe.None<number>() : Maybe.Some(idx)
 	}
 }
