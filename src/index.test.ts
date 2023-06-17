@@ -8,7 +8,7 @@ import {
 	exhaustive,
 	hash,
 	range,
-} from "./main.ts"
+} from "./index.ts"
 import { Maybe, Result } from "./functional/index.ts"
 
 describe.concurrent("clamp()", it => {

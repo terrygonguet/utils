@@ -6,7 +6,7 @@ export default defineConfig({
 		lib: {
 			formats: ["es"],
 			entry: {
-				main: resolve(__dirname, "src/main.ts"),
+				index: resolve(__dirname, "src/index.ts"),
 				async: resolve(__dirname, "src/async.ts"),
 				functional: resolve(__dirname, "src/functional/index.ts"),
 			},
