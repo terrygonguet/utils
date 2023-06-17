@@ -3,6 +3,7 @@ interface API<S, F> {
     isSuccess(this: Result<S, F>): this is Success<S, F>;
     isFailure(this: Result<S, F>): this is Failure<S, F>;
     merge<T>(this: Result<S, F>, f: (value: S) => T, g: (reason: F) => T): T;
+    match(this: Result<S, F>, successFn: (value: S) => void, failureFn: (reason: F) => void): void;
     map<S2>(this: Result<S, F>, f: (value: S) => S2): Result<S2, F>;
     flatMap<S2, F2>(this: Result<S, F>, f: (value: S) => Result<S2, F | F2>): Result<S2, F | F2>;
     toJSON(this: Result<S, F>): Object;

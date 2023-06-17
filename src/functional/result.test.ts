@@ -1,7 +1,8 @@
-import { describe } from "vitest"
+import { describe, vi } from "vitest"
 import { type Success, type Failure, Result } from "./result.ts"
-import { Maybe } from "./maybe.ts";
+import { Maybe } from "./maybe.ts"
 import { constant, identity } from "./index.ts"
+import { noop } from "../index.ts"
 
 describe.concurrent("Result", it => {
 	const success: Result<number, string> = Result.Success(5)
@@ -30,6 +31,18 @@ describe.concurrent("Result", it => {
 				reason => reason + "!",
 			),
 		).to.equal("reason!")
+	})
+
+	it("match()", ({ expect }) => {
+		const functions = { success: noop, failure: noop }
+		const spySuccess = vi.spyOn(functions, "success")
+		const spyFailure = vi.spyOn(functions, "failure")
+		success.match(functions.success, functions.failure)
+		failure.match(functions.success, functions.failure)
+		expect(spySuccess).toHaveBeenCalledTimes(1)
+		expect(spySuccess).toHaveBeenCalledWith(5)
+		expect(spyFailure).toHaveBeenCalledTimes(1)
+		expect(spyFailure).toHaveBeenCalledWith("reason")
 	})
 
 	it("map()", ({ expect }) => {

@@ -5,6 +5,7 @@ interface API<S, F> {
 	isSuccess(this: Result<S, F>): this is Success<S, F>
 	isFailure(this: Result<S, F>): this is Failure<S, F>
 	merge<T>(this: Result<S, F>, f: (value: S) => T, g: (reason: F) => T): T
+	match(this: Result<S, F>, successFn: (value: S) => void, failureFn: (reason: F) => void): void
 	map<S2>(this: Result<S, F>, f: (value: S) => S2): Result<S2, F>
 	flatMap<S2, F2>(this: Result<S, F>, f: (value: S) => Result<S2, F | F2>): Result<S2, F | F2>
 	toJSON(this: Result<S, F>): Object
@@ -26,6 +27,9 @@ function Success<S, F>(value: S): Success<S, F> {
 			merge<T>(this: Success<S, F>, f: (value: S) => T) {
 				return f(this.value)
 			},
+			match(this: Success<S, F>, successFn) {
+				return successFn(this.value)
+			},
 			map<S2>(this: Success<S, F>, f: (value: S) => S2) {
 				return Success(f(this.value))
 			},
@@ -35,7 +39,7 @@ function Success<S, F>(value: S): Success<S, F> {
 			toJSON(this: Success<S, F>) {
 				return { $_kind, $_variant: $_variant_Success, value: this.value }
 			},
-		} as API<S, F>,
+		} satisfies API<S, F>,
 		{
 			$_kind: { value: $_kind, enumerable: false, writable: false },
 			$_variant: { value: $_variant_Success, enumerable: false, writable: false },
@@ -52,6 +56,9 @@ function Failure<S, F>(reason: F): Failure<S, F> {
 			merge<T>(this: Failure<S, F>, _: (value: S) => T, g: (reason: F) => T) {
 				return g(this.reason)
 			},
+			match(this: Failure<S, F>, _, failureFn) {
+				return failureFn(this.reason)
+			},
 			map<S2>(this: Failure<S, F>) {
 				return this as unknown as Result<S2, F>
 			},
@@ -61,7 +68,7 @@ function Failure<S, F>(reason: F): Failure<S, F> {
 			toJSON(this: Failure<S, F>) {
 				return { $_kind, $_variant: $_variant_Failure, reason: this.reason }
 			},
-		} as API<S, F>,
+		} satisfies API<S, F>,
 		{
 			$_kind: { value: $_kind, enumerable: false, writable: false },
 			$_variant: { value: $_variant_Success, enumerable: false, writable: false },
