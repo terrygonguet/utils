@@ -1,5 +1,5 @@
-import { describe } from "vitest"
-import { pause, retry } from "./async.ts"
+import { describe, vi } from "vitest"
+import { asyncMap, pause, retry } from "./async.ts"
 
 describe.concurrent("pause()", it => {
 	it("pauses", async ({ expect }) => {
@@ -79,5 +79,51 @@ describe.concurrent("retry()", _ => {
 			const delta = performance.now() - start
 			expect(delta).to.be.greaterThanOrEqual(10 + 20 + 30)
 		})
+	})
+})
+
+describe.concurrent("asyncMap()", it => {
+	function task(n: number) {
+		return pause(Math.floor(Math.random() * 400) + 100).then(() => n)
+	}
+	function throwAt5(n: number) {
+		return task(n).then(n => {
+			if (n == 5) throw new Error("reason")
+			else return n
+		})
+	}
+
+	it("preserves order", async ({ expect }) => {
+		const data = [1, 2, 3, 4, 5]
+		const results = await asyncMap(data, task)
+		expect(results).to.deep.equal(data)
+	})
+
+	it("resolves when given an empty array", async ({ expect }) => {
+		const empty = await asyncMap([], task)
+		expect(empty).to.deep.equal([])
+	})
+
+	it("throws when one of the tasks throws", async ({ expect }) => {
+		const data = [1, 2, 3, 4, 5]
+		const promise = asyncMap(data, throwAt5)
+		expect(promise).rejects.toThrow("reason")
+	})
+
+	it("limits the number of promises in flight", async ({ expect }) => {
+		const data = [1, 2, 3, 4, 5]
+		const temp = { task }
+		const spy = vi.spyOn(temp, "task")
+		const promise = asyncMap(data, temp.task, { concurrent: 3 })
+		expect(spy).toHaveBeenCalledTimes(3)
+		expect(await promise).to.deep.equal(data)
+		expect(spy).toHaveBeenCalledTimes(5)
+	})
+
+	it("works functional style", async ({ expect }) => {
+		const data = [1, 2, 3, 4, 5]
+		const map = asyncMap(task)
+		const results = await map(data)
+		expect(results).to.deep.equal(data)
 	})
 })
