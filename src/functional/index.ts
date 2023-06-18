@@ -43,3 +43,38 @@ export function findIndex<T>(dataOrPredicate: T[] | Predicate<T>, predicate?: Pr
 		return idx == -1 ? Maybe.None<number>() : Maybe.Some(idx)
 	}
 }
+
+export function prop<T extends {}, K1 extends keyof T = keyof T>(data: T, key1: K1): Maybe<T[K1]>
+export function prop<
+	T extends {},
+	K1 extends keyof T = keyof T,
+	K2 extends keyof T[K1] = keyof T[K1],
+>(data: T, key1: K1, key2: K2): Maybe<T[K1][K2]>
+export function prop<
+	T extends {},
+	K1 extends keyof T = keyof T,
+	K2 extends keyof T[K1] = keyof T[K1],
+	K3 extends keyof T[K1][K2] = keyof T[K1][K2],
+>(data: T, key1: K1, key2: K2, key: K3): Maybe<T[K1][K2][K3]>
+export function prop<
+	T extends {},
+	K1 extends keyof T = keyof T,
+	K2 extends keyof T[K1] = keyof T[K1],
+	K3 extends keyof T[K1][K2] = keyof T[K1][K2],
+	K4 extends keyof T[K1][K2][K3] = keyof T[K1][K2][K3],
+>(data: T, key1: K1, key2: K2, key: K3, key4: K4): Maybe<T[K1][K2][K3][K4]>
+export function prop<
+	T extends {},
+	K1 extends keyof T = keyof T,
+	K2 extends keyof T[K1] = keyof T[K1],
+	K3 extends keyof T[K1][K2] = keyof T[K1][K2],
+	K4 extends keyof T[K1][K2][K3] = keyof T[K1][K2][K3],
+	K5 extends keyof T[K1][K2][K3][K4] = keyof T[K1][K2][K3][K4],
+>(data: T, key1: K1, key2: K2, key: K3, key4: K4, key5: K5): Maybe<T[K1][K2][K3][K4][K5]>
+
+export function prop(data: any, ...path: string[]) {
+	for (const key of path) {
+		data = data?.[key]
+	}
+	return Maybe.from(data)
+}
