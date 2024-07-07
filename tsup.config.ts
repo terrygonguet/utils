@@ -10,8 +10,5 @@ export default defineConfig({
 	clean: true,
 	target: "esnext",
 	format: "esm",
-	dts: {
-		compilerOptions: { moduleResolution: "node" },
-		resolve: true,
-	},
+	dts: true,
 })

@@ -8,6 +8,9 @@
 		"test": "vitest test --update",
 		"coverage": "vitest run --coverage"
 	},
+	"files": [
+		"dist"
+	],
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
@@ -26,10 +29,6 @@
 		"typescript": "^5.0.2",
 		"vite": "^4.3.9",
 		"vitest": "^0.32.0"
-	},
-	"dependencies": {
-		"just-compose": "^2.3.0",
-		"just-pipe": "^1.0.0"
 	},
 	"author": {
 		"email": "terry@gonguet.com",
