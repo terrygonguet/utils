@@ -7,11 +7,15 @@ export function clamp(value: number, min: number, max: number) {
 
 type JSONReviver = (key: string, value: any) => any
 
+/**
+ * This function does no runtime type checking,
+ * make sure that the parsed value is valid
+ */
 export function safeParse<T>(
 	str: string,
 	defaultValue: T,
 	reviver?: JSONReviver,
-) {
+): T {
 	try {
 		return JSON.parse(str, reviver)
 	} catch (_) {
