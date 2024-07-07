@@ -1,5 +1,3 @@
-import { findIndex } from "./functional/index.ts"
-
 export function pause(ms: number): Promise<void> {
 	return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -9,14 +7,22 @@ interface RetryOptions {
 	delay?: number | ((retryCount: number, error: any) => number)
 }
 
-export function retry(options: RetryOptions): <T>(provider: () => Promise<T>) => Promise<T>
-export function retry<T>(provider: () => Promise<T>, options?: RetryOptions): Promise<T>
+export function retry(
+	options: RetryOptions,
+): <T>(provider: () => Promise<T>) => Promise<T>
+export function retry<T>(
+	provider: () => Promise<T>,
+	options?: RetryOptions,
+): Promise<T>
 export function retry<T>(
 	providerOrOptions: RetryOptions | (() => Promise<T>),
 	options?: RetryOptions,
 ) {
-	if (typeof providerOrOptions == "function") return _retry(providerOrOptions, options)
-	else return (provider: () => Promise<T>) => _retry(provider, providerOrOptions)
+	if (typeof providerOrOptions == "function")
+		return _retry(providerOrOptions, options)
+	else
+		return (provider: () => Promise<T>) =>
+			_retry(provider, providerOrOptions)
 }
 
 async function _retry<T>(
@@ -86,14 +92,16 @@ async function asyncMap_<T, U>(
 
 		let next = 0
 		function queue(i: number) {
-			if (resolved.length == data.length && inFlight.length == 0) return finish()
+			if (resolved.length == data.length && inFlight.length == 0)
+				return finish()
 			if (i >= data.length) return
 			const el = data[i]
 			inFlight.push([
 				i,
 				f(el, i, data).then(result => {
 					resolved.push([i, result])
-					findIndex(inFlight, ([j]) => i == j).map(j => inFlight.splice(j, 1))
+					const j = inFlight.findIndex(([j]) => i == j)
+					inFlight.splice(j, 1)
 					queue(next)
 				}, reject),
 			])

@@ -1,5 +1,3 @@
-import { constant } from "./functional/index.ts"
-
 /**
  * Behaviour is undefined when max < min
  */
@@ -9,7 +7,11 @@ export function clamp(value: number, min: number, max: number) {
 
 type JSONReviver = (key: string, value: any) => any
 
-export function safeParse<T>(str: string, defaultValue: T, reviver?: JSONReviver) {
+export function safeParse<T>(
+	str: string,
+	defaultValue: T,
+	reviver?: JSONReviver,
+) {
 	try {
 		return JSON.parse(str, reviver)
 	} catch (_) {
@@ -28,8 +30,8 @@ export function composeJSONRevivers(...revivers: JSONReviver[]): JSONReviver {
 
 export function createNoopProxy<T>() {
 	const noop = () => proxy
-	const no = constant(false)
-	const yes = constant(true)
+	const no = () => false
+	const yes = () => true
 	const proxy: any = new Proxy(() => {}, {
 		get: noop,
 		set: noop,

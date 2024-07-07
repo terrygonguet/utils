@@ -2,48 +2,39 @@
 	"name": "@terrygonguet/utils",
 	"version": "0.0.14",
 	"type": "module",
-	"module": "./dist/index.js",
-	"author": {
-		"email": "terry@gonguet.com",
-		"name": "Terry Gonguet",
-		"url": "https://terry.gonguet.com/"
-	},
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc && vite build",
-		"test": "vitest test --ui --watch --update",
+		"build": "tsup",
+		"test": "vitest test --update",
 		"coverage": "vitest run --coverage"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./async": {
+			"types": "./dist/async.d.ts",
+			"import": "./dist/async.js"
+		}
 	},
 	"devDependencies": {
 		"@vitest/coverage-v8": "^0.32.0",
 		"@vitest/ui": "^0.32.0",
 		"prettier": "^2.8.8",
+		"tsup": "^8.1.0",
 		"typescript": "^5.0.2",
 		"vite": "^4.3.9",
 		"vitest": "^0.32.0"
 	},
-	"files": [
-		"dist/**/*.js",
-		"src/**/!(*.test).ts",
-		"types/**/!(*.test).d.ts"
-	],
-	"exports": {
-		".": {
-			"types": "./types/index.d.ts",
-			"import": "./dist/index.js"
-		},
-		"./async": {
-			"types": "./types/async.d.ts",
-			"import": "./dist/async.js"
-		},
-		"./functional": {
-			"types": "./types/functional/index.d.ts",
-			"import": "./dist/functional.js"
-		}
-	},
 	"dependencies": {
 		"just-compose": "^2.3.0",
 		"just-pipe": "^1.0.0"
+	},
+	"author": {
+		"email": "terry@gonguet.com",
+		"name": "Terry Gonguet",
+		"url": "https://terry.gonguet.com/"
 	},
 	"repository": {
 		"type": "git",

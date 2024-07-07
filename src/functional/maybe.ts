@@ -1,5 +1,5 @@
-import { compose, constant, identity } from "./index.ts"
-import { Result } from "./result.ts"
+import { compose, constant, identity } from "./index"
+import { Result } from "./result"
 
 const $_kind = "@terrygonguet/utils/functional/maybe"
 const $_variant_Some = "@terrygonguet/utils/functional/maybe/Some"
@@ -22,7 +22,11 @@ class Some<T> implements Maybe<T> {
 	constructor(value: T) {
 		Object.defineProperties(this, {
 			$_kind: { value: $_kind, enumerable: false, writable: false },
-			$_variant: { value: $_variant_Some, enumerable: false, writable: false },
+			$_variant: {
+				value: $_variant_Some,
+				enumerable: false,
+				writable: false,
+			},
 			value: { value, writable: false },
 		})
 	}
@@ -71,7 +75,9 @@ class None<T> implements Maybe<T> {
 	toResult(): Result<T, undefined>
 	toResult<U>(mapNone: () => U): Result<T, U>
 	toResult<U>(mapNone?: () => U) {
-		return mapNone ? Result.Failure<T, U>(mapNone?.()) : Result.Failure<T, undefined>(undefined)
+		return mapNone
+			? Result.Failure<T, U>(mapNone?.())
+			: Result.Failure<T, undefined>(undefined)
 	}
 	toJSON(): Object {
 		return { $_kind, $_variant: $_variant_None }
@@ -99,13 +105,20 @@ export const Maybe = {
 	 * CAUTION: this method swallows errors and simply returns None!
 	 * Use `Result.fromPromise()` if you need error details.
 	 */
-	fromPromise<T>(promise: Promise<T>, onResolve: (value: T) => T = identity): Promise<Maybe<T>> {
-		return promise.then(compose(onResolve, Maybe.from), constant(this.None()))
+	fromPromise<T>(
+		promise: Promise<T>,
+		onResolve: (value: T) => T = identity,
+	): Promise<Maybe<T>> {
+		return promise.then(
+			compose(onResolve, Maybe.from),
+			constant(this.None()),
+		)
 	},
 	JSONReviver(_key: string, value: any) {
 		if (value?.$_kind == $_kind) {
 			const $_variant = value?.$_variant
-			if ($_variant == $_variant_Some) return new Some<unknown>(value?.value)
+			if ($_variant == $_variant_Some)
+				return new Some<unknown>(value?.value)
 			else if ($_variant == $_variant_None) return Maybe.None()
 			else return value
 		} else return value

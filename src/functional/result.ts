@@ -1,5 +1,5 @@
-import { compose, identity } from "./index.ts"
-import { Maybe } from "./maybe.ts"
+import { compose, identity } from "./index"
+import { Maybe } from "./maybe"
 
 const $_kind = "@terrygonguet/utils/functional/result"
 const $_variant_Success = "@terrygonguet/utils/functional/result/Success"
@@ -21,7 +21,11 @@ class Success<S, F> implements Result<S, F> {
 	constructor(value: S) {
 		Object.defineProperties(this, {
 			$_kind: { value: $_kind, enumerable: false, writable: false },
-			$_variant: { value: $_variant_Success, enumerable: false, writable: false },
+			$_variant: {
+				value: $_variant_Success,
+				enumerable: false,
+				writable: false,
+			},
 			value: { value, writable: false },
 		})
 	}
@@ -55,7 +59,11 @@ class Failure<S, F> implements Result<S, F> {
 	constructor(reason: F) {
 		Object.defineProperties(this, {
 			$_kind: { value: $_kind, enumerable: false, writable: false },
-			$_variant: { value: $_variant_Success, enumerable: false, writable: false },
+			$_variant: {
+				value: $_variant_Success,
+				enumerable: false,
+				writable: false,
+			},
 			reason: { value: reason, writable: false },
 		})
 	}
@@ -113,7 +121,8 @@ export const Result = {
 	JSONReviver(_key: string, value: any) {
 		if (value?.$_kind == $_kind) {
 			const $_variant = value?.$_variant
-			if ($_variant == $_variant_Success) return new Success<unknown, unknown>(value?.value)
+			if ($_variant == $_variant_Success)
+				return new Success<unknown, unknown>(value?.value)
 			else if ($_variant == $_variant_Failure)
 				return new Failure<unknown, unknown>(value?.reason)
 			else return value
