@@ -67,3 +67,12 @@ export function* range(start: number, end: number, step = 1) {
 		yield i
 	}
 }
+
+export function safe<T, Err = unknown>(f: () => T): [null, T] | [Err, null] {
+	try {
+		const result = f()
+		return [null, result]
+	} catch (error) {
+		return [error as Err, null]
+	}
+}

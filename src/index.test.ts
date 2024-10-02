@@ -8,6 +8,7 @@ import {
 	exhaustive,
 	hash,
 	range,
+	safe,
 } from "./index.ts"
 
 describe.concurrent("clamp()", it => {
@@ -159,5 +160,23 @@ describe.concurrent("range()", it => {
 	it("respects step", ({ expect }) => {
 		const arr = [...range(0, 5, 2)]
 		expect(arr).to.deep.equal([0, 2, 4])
+	})
+})
+
+describe.concurrent("safe()", it => {
+	it("catches and passes an error", ({ expect }) => {
+		const [err, data] = safe(() => JSON.parse("{"))
+		expect(data).to.be.null
+		expect(err).to.be.instanceOf(SyntaxError)
+	})
+
+	it("passes the result through", ({ expect }) => {
+		const [err, data] = safe(() => JSON.parse(`{"hello":"world"}`))
+		expect(data).to.toMatchInlineSnapshot(`
+			{
+			  "hello": "world",
+			}
+		`)
+		expect(err).to.be.null
 	})
 })
