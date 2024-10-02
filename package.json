@@ -24,6 +24,10 @@
 		"./json": {
 			"types": "./dist/json.d.ts",
 			"import": "./dist/json.js"
+		},
+		"./tableau": {
+			"types": "./dist/tableau.d.ts",
+			"import": "./dist/tableau.js"
 		}
 	},
 	"devDependencies": {
