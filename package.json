@@ -20,6 +20,10 @@
 		"./async": {
 			"types": "./dist/async.d.ts",
 			"import": "./dist/async.js"
+		},
+		"./json": {
+			"types": "./dist/json.d.ts",
+			"import": "./dist/json.js"
 		}
 	},
 	"devDependencies": {

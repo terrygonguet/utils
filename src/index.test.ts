@@ -1,8 +1,6 @@
 import { describe } from "vitest"
 import {
 	clamp,
-	safeParse,
-	composeJSONRevivers,
 	createNoopProxy,
 	noop,
 	exhaustive,
@@ -25,78 +23,6 @@ describe.concurrent("clamp()", it => {
 		expect(clamp(-5, 10, 10)).to.equal(10)
 		expect(clamp(15, 10, 10)).to.equal(10)
 	})
-})
-
-describe.concurrent("safeParse()", it => {
-	it("works the same as JSON.parse for valid objects", ({ expect }) => {
-		const json = `{"prop":"value"}`
-		expect(safeParse(json, {})).to.deep.equal(JSON.parse(json))
-	})
-
-	it("uses default value for malformed JSON", ({ expect }) => {
-		const json = `{"prop":}`
-		expect(safeParse(json, { prop: "default" })).to.deep.equal({
-			prop: "default",
-		})
-	})
-
-	it("uses revivers", ({ expect }) => {
-		const json = `{"prop":"value","other":"ignored"}`
-		function reviver(key: string, value: any) {
-			if (key == "prop") return "replaced"
-			else return value
-		}
-		const defaultValue = { prop: "value", other: "ignored" }
-		expect(safeParse(json, defaultValue, reviver)).to.deep.equal({
-			prop: "replaced",
-			other: "ignored",
-		})
-	})
-})
-
-describe.concurrent("combineJSONRevivers()", it => {
-	it("does nothing when given nothing", ({ expect }) => {
-		const json = `{"prop":"value","other":"ignored"}`
-		const obj = JSON.parse(json, composeJSONRevivers())
-		expect(obj).toMatchInlineSnapshot(`
-			{
-			  "other": "ignored",
-			  "prop": "value",
-			}
-		`)
-	})
-
-	// it("composes revivers", ({ expect }) => {
-	// 	const json = JSON.stringify({
-	// 		prop: "value",
-	// 		other: "ignored",
-	// 		maybe: {
-	// 			some: Maybe.Some(5),
-	// 			none: Maybe.None(),
-	// 		},
-	// 		result: {
-	// 			success: Result.Success(5),
-	// 			failure: Result.Failure("fail"),
-	// 		},
-	// 	})
-	// 	const obj = JSON.parse(
-	// 		json,
-	// 		composeJSONRevivers(
-	// 			Maybe.JSONReviver,
-	// 			Result.JSONReviver,
-	// 			(key, value) => (key == "prop" ? "replaced" : value),
-	// 		),
-	// 	)
-	// 	expect(obj.prop).to.equal("replaced")
-	// 	expect(obj.other).to.equal("ignored")
-	// 	expect(obj.maybe.some.isSome()).to.be.true
-	// 	expect(obj.maybe.some.value).to.equal(5)
-	// 	expect(obj.maybe.none.isSome()).to.be.false
-	// 	expect(obj.result.success.isSuccess()).to.be.true
-	// 	expect(obj.result.success.value).to.equal(5)
-	// 	expect(obj.result.failure.isSuccess()).to.be.false
-	// 	expect(obj.result.failure.reason).to.equal("fail")
-	// })
 })
 
 describe.concurrent("createNoopProxy()", it => {

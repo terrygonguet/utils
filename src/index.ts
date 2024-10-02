@@ -5,33 +5,6 @@ export function clamp(value: number, min: number, max: number) {
 	return Math.min(Math.max(value, min), max)
 }
 
-type JSONReviver = (key: string, value: any) => any
-
-/**
- * This function does no runtime type checking,
- * make sure that the parsed value is valid
- */
-export function safeParse<T>(
-	str: string,
-	defaultValue: T,
-	reviver?: JSONReviver,
-): T {
-	try {
-		return JSON.parse(str, reviver)
-	} catch (_) {
-		return defaultValue
-	}
-}
-
-export function composeJSONRevivers(...revivers: JSONReviver[]): JSONReviver {
-	return function (key, value) {
-		for (const reviver of revivers) {
-			value = reviver(key, value)
-		}
-		return value
-	}
-}
-
 export function createNoopProxy<T>() {
 	const noop = () => proxy
 	const no = () => false
