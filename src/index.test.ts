@@ -105,4 +105,16 @@ describe.concurrent("safe()", it => {
 		`)
 		expect(err).to.be.null
 	})
+
+	it("catches a promise rejection", async ({ expect }) => {
+		const [err, data] = await safe(() => Promise.reject(new Error()))
+		expect(data).to.be.null
+		expect(err).to.be.instanceof(Error)
+	})
+
+	it("passes a promise result through", async ({ expect }) => {
+		const [err, data] = await safe(() => Promise.resolve(123))
+		expect(data).to.equal(123)
+		expect(err).to.be.null
+	})
 })

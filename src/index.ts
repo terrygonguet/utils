@@ -41,10 +41,19 @@ export function* range(start: number, end: number, step = 1) {
 	}
 }
 
-export function safe<T, Err = unknown>(f: () => T): [null, T] | [Err, null] {
+export function safe<T, Err = Error>(
+	f: () => Promise<T>,
+): Promise<[null, T] | [Err, null]>
+export function safe<T, Err = Error>(f: () => T): [null, T] | [Err, null]
+export function safe<T, Err = Error>(f: () => T | Promise<T>) {
 	try {
-		const result = f()
-		return [null, result]
+		const promiseOrResult = f()
+		if (promiseOrResult instanceof Promise)
+			return promiseOrResult.then(
+				result => [null, result],
+				error => [error, null],
+			)
+		else return [null, promiseOrResult]
 	} catch (error) {
 		return [error as Err, null]
 	}
