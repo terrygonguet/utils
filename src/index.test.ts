@@ -91,29 +91,26 @@ describe.concurrent("range()", it => {
 
 describe.concurrent("safe()", it => {
 	it("catches and passes an error", ({ expect }) => {
-		const [err, data] = safe(() => JSON.parse("{"))
+		const [err, data] = safe(BigInt, "1n")
 		expect(data).to.be.null
 		expect(err).to.be.instanceOf(SyntaxError)
 	})
 
 	it("passes the result through", ({ expect }) => {
-		const [err, data] = safe(() => JSON.parse(`{"hello":"world"}`))
-		expect(data).to.toMatchInlineSnapshot(`
-			{
-			  "hello": "world",
-			}
-		`)
+		const [err, data] = safe(BigInt, "1")
+		expect(data).to.toMatchInlineSnapshot(`1n`)
 		expect(err).to.be.null
 	})
 
 	it("catches a promise rejection", async ({ expect }) => {
-		const [err, data] = await safe(() => Promise.reject(new Error()))
+		const [err, data] = await safe(Promise.reject<number>, new Error())
 		expect(data).to.be.null
 		expect(err).to.be.instanceof(Error)
 	})
 
 	it("passes a promise result through", async ({ expect }) => {
-		const [err, data] = await safe(() => Promise.resolve(123))
+		const dummy = (value: number) => Promise.resolve(value)
+		const [err, data] = await safe(dummy, 123)
 		expect(data).to.equal(123)
 		expect(err).to.be.null
 	})

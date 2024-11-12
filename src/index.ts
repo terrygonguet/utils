@@ -41,13 +41,28 @@ export function* range(start: number, end: number, step = 1) {
 	}
 }
 
-export function safe<T, Err = Error>(
-	f: () => Promise<T>,
-): Promise<[null, T] | [Err, null]>
-export function safe<T, Err = Error>(f: () => T): [null, T] | [Err, null]
-export function safe<T, Err = Error>(f: () => T | Promise<T>) {
+export type ExecResult<T, Err = Error> = [null, T] | [Err, null]
+
+export function safe<F extends (...args: any) => any>(
+	f: F,
+	...args: Parameters<F>
+): ReturnType<F> extends Promise<any>
+	? Promise<ExecResult<Awaited<ReturnType<F>>>>
+	: ExecResult<ReturnType<F>>
+
+export function safe<Err, F extends (...args: any) => any>(
+	f: F,
+	...args: Parameters<F>
+): ReturnType<F> extends Promise<any>
+	? Promise<ExecResult<Awaited<ReturnType<F>>, Err>>
+	: ExecResult<ReturnType<F>, Err>
+
+export function safe<F extends (...args: any) => any | Promise<any>>(
+	f: F,
+	...args: Parameters<F>
+): ExecResult<ReturnType<F>> | Promise<ExecResult<Awaited<ReturnType<F>>>> {
 	try {
-		const promiseOrResult = f()
+		const promiseOrResult = f(...args)
 		if (promiseOrResult instanceof Promise)
 			return promiseOrResult.then(
 				result => [null, result],
@@ -55,6 +70,9 @@ export function safe<T, Err = Error>(f: () => T | Promise<T>) {
 			)
 		else return [null, promiseOrResult]
 	} catch (error) {
-		return [error as Err, null]
+		return [error as Error, null]
 	}
 }
+
+export const exec = safe
+export const run = safe
