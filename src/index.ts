@@ -41,6 +41,19 @@ export function* range(start: number, end: number, step = 1) {
 	}
 }
 
+export function yesno(value?: string) {
+	switch (value?.toLowerCase()) {
+		case "1":
+		case "y":
+		case "yes":
+		case "true":
+		case "on":
+			return true
+		default:
+			return false
+	}
+}
+
 export type ExecResult<T, Err = Error> = [null, T] | [Err, null]
 
 export function safe<F extends (...args: any) => any>(

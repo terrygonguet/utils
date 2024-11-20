@@ -7,6 +7,7 @@ import {
 	hash,
 	range,
 	safe,
+	yesno,
 } from "./index.ts"
 
 describe.concurrent("clamp()", it => {
@@ -86,6 +87,31 @@ describe.concurrent("range()", it => {
 	it("respects step", ({ expect }) => {
 		const arr = [...range(0, 5, 2)]
 		expect(arr).to.deep.equal([0, 2, 4])
+	})
+})
+
+describe.concurrent("yesno()", it => {
+	it("returns true for any case variation", ({ expect }) => {
+		const yes = [
+			"1",
+			"y",
+			"Y",
+			"yes",
+			"YES",
+			"YeS",
+			"Yes",
+			"true",
+			"True",
+			"TRue",
+			"TRUE",
+			"on",
+			"On",
+			"ON",
+			"oN",
+		]
+		for (const value of yes) {
+			expect(yesno(value)).to.be.true
+		}
 	})
 })
 
