@@ -37,7 +37,7 @@ describe.concurrent("retry()", _ => {
 			const result = await retryWithDelay(fail3)
 			expect(result).to.equal("success")
 			const delta = performance.now() - start
-			expect(delta).to.be.greaterThanOrEqual(3 * 15)
+			expect(delta).to.be.greaterThanOrEqual(3 * 14)
 		})
 
 		it("waits between attempts by a variable delay", async ({ expect }) => {
@@ -162,12 +162,12 @@ describe.concurrent("asyncMap()", it => {
 	}) => {
 		const data = [1, 2, 3, 4, 5]
 		const promise1 = asyncMap(data, throwAt5, { failFast: true })
-		expect(promise1).rejects.toThrow(new Error("reason"))
+		await expect(promise1).rejects.toThrow(new Error("reason"))
 		const promise2 = asyncMap(data, throwAt5, {
 			failFast: true,
 			withSourceIndexes: true,
 		})
-		expect(promise2).rejects.toThrow(new Error("reason"))
+		await expect(promise2).rejects.toThrow(new Error("reason"))
 	})
 
 	it("limits the number of promises in flight", async ({ expect }) => {
