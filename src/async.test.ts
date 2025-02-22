@@ -12,7 +12,8 @@ describe.concurrent("pause()", it => {
 
 describe.concurrent("retry()", _ => {
 	function makeFailN(n: number) {
-		return () => (n-- == 0 ? Promise.resolve("success") : Promise.reject("reason"))
+		return () =>
+			n-- == 0 ? Promise.resolve("success") : Promise.reject("reason")
 	}
 
 	describe.concurrent("funtional style", it => {
@@ -93,21 +94,80 @@ describe.concurrent("asyncMap()", it => {
 		})
 	}
 
+	const taskResult = {
+		results: [1, 2, 3, 4, 5],
+		errors: [],
+	}
+	const taskResultWithIndexes = {
+		results: [
+			[0, 1],
+			[1, 2],
+			[2, 3],
+			[3, 4],
+			[4, 5],
+		],
+		errors: [],
+	}
+
 	it("preserves order", async ({ expect }) => {
 		const data = [1, 2, 3, 4, 5]
-		const results = await asyncMap(data, task)
-		expect(results).to.deep.equal(data)
+		const result1 = await asyncMap(data, task)
+		expect(result1).to.deep.equal(taskResult)
+		const result2 = await asyncMap(data, task, { withSourceIndexes: true })
+		expect(result2).to.deep.equal(taskResultWithIndexes)
+		const result3 = await asyncMap(data, task, { failFast: true })
+		expect(result3).to.deep.equal(taskResult.results)
+		const result4 = await asyncMap(data, task, {
+			failFast: true,
+			withSourceIndexes: true,
+		})
+		expect(result4).to.deep.equal(taskResultWithIndexes.results)
 	})
 
 	it("resolves when given an empty array", async ({ expect }) => {
-		const empty = await asyncMap([], task)
-		expect(empty).to.deep.equal([])
+		const empty1 = await asyncMap([], task)
+		expect(empty1).to.deep.equal({ results: [], errors: [] })
+		const empty2 = await asyncMap([], task, { withSourceIndexes: true })
+		expect(empty2).to.deep.equal({ results: [], errors: [] })
+		const empty3 = await asyncMap([], task, { failFast: true })
+		expect(empty3).to.deep.equal([])
+		const empty4 = await asyncMap([], task, {
+			failFast: true,
+			withSourceIndexes: true,
+		})
+		expect(empty4).to.deep.equal([])
 	})
 
-	it("throws when one of the tasks throws", async ({ expect }) => {
+	it("doesn't throw in normal mode", async ({ expect }) => {
 		const data = [1, 2, 3, 4, 5]
-		const promise = asyncMap(data, throwAt5)
-		expect(promise).rejects.toThrow("reason")
+		expect(await asyncMap(data, throwAt5)).to.deep.equal({
+			results: [1, 2, 3, 4],
+			errors: [new Error("reason")],
+		})
+		expect(
+			await asyncMap(data, throwAt5, { withSourceIndexes: true }),
+		).to.deep.equal({
+			results: [
+				[0, 1],
+				[1, 2],
+				[2, 3],
+				[3, 4],
+			],
+			errors: [[4, new Error("reason")]],
+		})
+	})
+
+	it("throws when one of the tasks throws in fail fast mode", async ({
+		expect,
+	}) => {
+		const data = [1, 2, 3, 4, 5]
+		const promise1 = asyncMap(data, throwAt5, { failFast: true })
+		expect(promise1).rejects.toThrow(new Error("reason"))
+		const promise2 = asyncMap(data, throwAt5, {
+			failFast: true,
+			withSourceIndexes: true,
+		})
+		expect(promise2).rejects.toThrow(new Error("reason"))
 	})
 
 	it("limits the number of promises in flight", async ({ expect }) => {
@@ -116,14 +176,22 @@ describe.concurrent("asyncMap()", it => {
 		const spy = vi.spyOn(temp, "task")
 		const promise = asyncMap(data, temp.task, { concurrent: 3 })
 		expect(spy).toHaveBeenCalledTimes(3)
-		expect(await promise).to.deep.equal(data)
+		expect(await promise).to.deep.equal(taskResult)
 		expect(spy).toHaveBeenCalledTimes(5)
 	})
 
 	it("works functional style", async ({ expect }) => {
 		const data = [1, 2, 3, 4, 5]
-		const map = asyncMap(task)
-		const results = await map(data)
-		expect(results).to.deep.equal(data)
+		const map1 = asyncMap(task)
+		expect(await map1(data)).to.deep.equal(taskResult)
+		const map2 = asyncMap(task, { withSourceIndexes: true })
+		expect(await map2(data)).to.deep.equal(taskResultWithIndexes)
+		const map3 = asyncMap(task, { failFast: true })
+		expect(await map3(data)).to.deep.equal(taskResult.results)
+		const map4 = asyncMap(task, {
+			failFast: true,
+			withSourceIndexes: true,
+		})
+		expect(await map4(data)).to.deep.equal(taskResultWithIndexes.results)
 	})
 })

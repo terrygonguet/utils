@@ -50,24 +50,71 @@ async function _retry<T>(
 	throw lastError
 }
 
-interface AsyncMapOptions {
+interface AsyncMapOptions<
+	FailFast extends boolean = false,
+	WithSourceIndexes extends boolean = false,
+> {
 	concurrent?: number
+	failFast?: FailFast
+	withSourceIndexes?: WithSourceIndexes
 }
 
-export function asyncMap<T, U>(
+interface AsyncMapResultWithIndexes<U> {
+	results: [i: number, value: U][]
+	errors: [i: number, error: unknown][]
+}
+
+interface AsyncMapResult<U> {
+	results: U[]
+	errors: unknown[]
+}
+
+type AsyncMapFn<T, U> = (el: T, i: number, data: T[]) => Promise<U>
+
+// --- Interface ---
+export function asyncMap<
+	T,
+	U,
+	FailFast extends boolean = false,
+	WithSourceIndexes extends boolean = false,
+>(
 	f: AsyncMapFn<T, U>,
-	options?: AsyncMapOptions,
-): (data: T[]) => Promise<U[]>
-export function asyncMap<T, U>(
+	options?: AsyncMapOptions<FailFast, WithSourceIndexes>,
+): (
+	data: T[],
+) => Promise<
+	FailFast extends true
+		? WithSourceIndexes extends true
+			? [i: number, value: U][]
+			: U[]
+		: WithSourceIndexes extends true
+		? AsyncMapResultWithIndexes<U>
+		: AsyncMapResult<U>
+>
+export function asyncMap<
+	T,
+	U,
+	FailFast extends boolean = false,
+	WithSourceIndexes extends boolean = false,
+>(
 	data: T[],
 	f: AsyncMapFn<T, U>,
-	options?: AsyncMapOptions,
-): Promise<U[]>
-export function asyncMap<T, U>(
+	options?: AsyncMapOptions<FailFast, WithSourceIndexes>,
+): Promise<
+	FailFast extends true
+		? WithSourceIndexes extends true
+			? [i: number, value: U][]
+			: U[]
+		: WithSourceIndexes extends true
+		? AsyncMapResultWithIndexes<U>
+		: AsyncMapResult<U>
+>
+// --- Implementation ---
+export function asyncMap<T, U, V extends boolean, W extends boolean>(
 	dataOrF: T[] | AsyncMapFn<T, U>,
-	ForOptions: AsyncMapFn<T, U> | AsyncMapOptions | undefined,
-	options?: AsyncMapOptions,
-): Promise<U[]> | ((data: T[]) => Promise<U[]>) {
+	ForOptions: AsyncMapFn<T, U> | AsyncMapOptions<V, W> | undefined,
+	options?: AsyncMapOptions<V, W>,
+): any {
 	if (typeof dataOrF == "function" && typeof ForOptions != "function") {
 		const f = dataOrF
 		const options = ForOptions
@@ -79,42 +126,71 @@ export function asyncMap<T, U>(
 	} else throw new Error("Invalid arguments passed to asyncMap")
 }
 
-type AsyncMapFn<T, U> = (el: T, i: number, data: T[]) => Promise<U>
-
-async function asyncMap_<T, U>(
+async function asyncMap_<T, U, V extends boolean, W extends boolean>(
 	data: T[],
 	f: AsyncMapFn<T, U>,
-	{ concurrent = 5 }: AsyncMapOptions = {},
-): Promise<U[]> {
+	{
+		concurrent = 5,
+		failFast = false as V,
+		withSourceIndexes = false as W,
+	}: AsyncMapOptions<V, W> = {},
+): Promise<any> {
 	return new Promise((resolve, reject) => {
 		const resolved: [i: number, result: U][] = []
-		const inFlight: [i: number, promise: Promise<void>][] = []
+		const errors: [i: number, error: unknown][] = []
+		const inFlight: Map<number, Promise<void>> = new Map()
 
 		let next = 0
+		let stop = false
+		/** @param {number} i */
 		function queue(i: number) {
-			if (resolved.length == data.length && inFlight.length == 0)
-				return finish()
-			if (i >= data.length) return
-			const el = data[i]
-			inFlight.push([
+			if (!stop && i > 0 && inFlight.size == 0) return finish()
+			if (stop || i >= data.length) return
+			inFlight.set(
 				i,
-				f(el, i, data).then(result => {
-					resolved.push([i, result])
-					const j = inFlight.findIndex(([j]) => i == j)
-					inFlight.splice(j, 1)
-					queue(next)
-				}, reject),
-			])
+				f(data[i], i, data)
+					.then(
+						result => void resolved.push([i, result]),
+						error => {
+							if (!failFast) errors.push([i, error])
+							else {
+								stop = true
+								reject(error)
+							}
+						},
+					)
+					.finally(() => {
+						inFlight.delete(i)
+						queue(next)
+					}),
+			)
 			next++
 		}
 
 		function finish() {
-			const sorted = resolved.sort(([a], [b]) => a - b)
-			resolve(sorted.map(([, value]) => value))
+			resolved.sort(([a], [b]) => a - b)
+			if (failFast) {
+				if (withSourceIndexes) resolve(resolved)
+				else resolve(resolved.map(([, value]) => value))
+			} else {
+				errors.sort(([a], [b]) => a - b)
+				if (withSourceIndexes)
+					resolve({
+						results: resolved,
+						errors: errors,
+					})
+				else
+					resolve({
+						results: resolved.map(([, value]) => value),
+						errors: errors.map(([, error]) => error),
+					})
+			}
 		}
 
-		for (let i = 0; i < concurrent; i++) {
-			queue(next)
-		}
+		if (data.length == 0) finish()
+		else
+			for (let i = 0; i < concurrent; i++) {
+				queue(next)
+			}
 	})
 }
