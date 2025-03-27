@@ -56,21 +56,21 @@ export function yesno(value?: string) {
 
 export type ExecResult<T, Err = Error> = [null, T] | [Err, null]
 
-export function safe<F extends (...args: any) => any>(
+export function tryCatch<F extends (...args: any) => any>(
 	f: F,
 	...args: Parameters<F>
 ): ReturnType<F> extends Promise<any>
 	? Promise<ExecResult<Awaited<ReturnType<F>>>>
 	: ExecResult<ReturnType<F>>
 
-export function safe<Err, F extends (...args: any) => any>(
+export function tryCatch<Err, F extends (...args: any) => any>(
 	f: F,
 	...args: Parameters<F>
 ): ReturnType<F> extends Promise<any>
 	? Promise<ExecResult<Awaited<ReturnType<F>>, Err>>
 	: ExecResult<ReturnType<F>, Err>
 
-export function safe<F extends (...args: any) => any | Promise<any>>(
+export function tryCatch<F extends (...args: any) => any | Promise<any>>(
 	f: F,
 	...args: Parameters<F>
 ): ExecResult<ReturnType<F>> | Promise<ExecResult<Awaited<ReturnType<F>>>> {
@@ -86,6 +86,3 @@ export function safe<F extends (...args: any) => any | Promise<any>>(
 		return [error as Error, null]
 	}
 }
-
-export const exec = safe
-export const run = safe

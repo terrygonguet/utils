@@ -6,7 +6,7 @@ import {
 	exhaustive,
 	hash,
 	range,
-	safe,
+	tryCatch,
 	yesno,
 } from "./index.ts"
 
@@ -115,28 +115,28 @@ describe.concurrent("yesno()", it => {
 	})
 })
 
-describe.concurrent("safe()", it => {
+describe.concurrent("tryCatch()", it => {
 	it("catches and passes an error", ({ expect }) => {
-		const [err, data] = safe(BigInt, "1n")
+		const [err, data] = tryCatch(BigInt, "1n")
 		expect(data).to.be.null
 		expect(err).to.be.instanceOf(SyntaxError)
 	})
 
 	it("passes the result through", ({ expect }) => {
-		const [err, data] = safe(BigInt, "1")
+		const [err, data] = tryCatch(BigInt, "1")
 		expect(data).to.toMatchInlineSnapshot(`1n`)
 		expect(err).to.be.null
 	})
 
 	it("catches a promise rejection", async ({ expect }) => {
-		const [err, data] = await safe(Promise.reject<number>, new Error())
+		const [err, data] = await tryCatch(Promise.reject<number>, new Error())
 		expect(data).to.be.null
 		expect(err).to.be.instanceof(Error)
 	})
 
 	it("passes a promise result through", async ({ expect }) => {
 		const dummy = (value: number) => Promise.resolve(value)
-		const [err, data] = await safe(dummy, 123)
+		const [err, data] = await tryCatch(dummy, 123)
 		expect(data).to.equal(123)
 		expect(err).to.be.null
 	})

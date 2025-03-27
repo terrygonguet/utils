@@ -7,6 +7,7 @@ export default defineConfig({
 		"src/json.ts",
 		"src/random.ts",
 		"src/tableau.ts",
+		"src/result.ts",
 	],
 	splitting: false,
 	clean: true,

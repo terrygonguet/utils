@@ -31,6 +31,10 @@
 		"./tableau": {
 			"types": "./dist/tableau.d.ts",
 			"import": "./dist/tableau.js"
+		},
+		"./result": {
+			"types": "./dist/result.d.ts",
+			"import": "./dist/result.js"
 		}
 	},
 	"devDependencies": {
