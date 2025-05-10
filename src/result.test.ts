@@ -136,6 +136,39 @@ describe.concurrent("safe()", it => {
 		expect(err3).to.deep.equal(new Error("test"))
 	})
 
+	it("allows recovering", ({ expect }) => {
+		const result = safe(() => 10)
+			.andThen(n => {
+				throw new Error("test")
+				return n + 5
+			})
+			.recover(error => error.message.length)
+		expect(result.value).to.equal(4)
+		expect(result.error).to.equal(null)
+	})
+
+	it("allows async recovering", async ({ expect }) => {
+		const result = await safe(async () => 10)
+			.andThen(n => {
+				throw new Error("test")
+				return n + 5
+			})
+			.recover(error => error.message.length)
+		expect(result.value).to.equal(4)
+		expect(result.error).to.equal(null)
+	})
+
+	it("cannot throw while recovering", async ({ expect }) => {
+		const result = await safe(async () => {
+			throw new Error("test")
+			return 10
+		}).recover(() => {
+			throw new Error("test2")
+		})
+		expect(result.value).to.equal(null)
+		expect(result.error).to.deep.equal(new Error("test2"))
+	})
+
 	it("can unwrap", async ({ expect }) => {
 		expect(safe(() => 10).unwrap()).to.equal(10)
 		await expect(safe(async () => 10).unwrap()).resolves.equal(10)

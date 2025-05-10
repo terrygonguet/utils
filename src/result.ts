@@ -31,6 +31,22 @@ class Result<Err extends Error, T> {
 		}
 	}
 
+	recover<Err2 extends Error, F extends (error: Err) => T | Promise<T>>(
+		f: F,
+	): ReturnType<F> extends Promise<any>
+		? AsyncResult<Err2, T>
+		: Result<Err2, T> {
+		if (!this.error) return this as any
+		try {
+			const newValue = f(this.error)
+			if (newValue instanceof Promise)
+				return new AsyncResult(newValue) as any
+			else return new Result(newValue, null) as any
+		} catch (error) {
+			return new Result(null, RawError.wrap(error)) as any
+		}
+	}
+
 	unwrap(): T {
 		if (this.value && !this.error) return this.value as T
 		else throw new Error("Tried to unwrap a failed Result")
@@ -70,6 +86,17 @@ class AsyncResult<Err extends Error, T> {
 		f: F,
 	): AsyncResult<Err | Err2, Awaited<ReturnType<F>>> {
 		return new AsyncResult(this.promise.then(value => f(value)))
+	}
+
+	recover<Err2 extends Error, F extends (error: Err) => T | Promise<T>>(
+		f: F,
+	): AsyncResult<Err2, T> {
+		return new AsyncResult(
+			this.promise.then(
+				value => value,
+				error => f(error),
+			),
+		)
 	}
 
 	unwrap(): Promise<T> {
