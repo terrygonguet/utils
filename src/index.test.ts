@@ -8,6 +8,8 @@ import {
 	range,
 	tryCatch,
 	yesno,
+	mapListPush,
+	recordListPush,
 } from "./index.ts"
 
 describe.concurrent("clamp()", it => {
@@ -112,6 +114,116 @@ describe.concurrent("yesno()", it => {
 		for (const value of yes) {
 			expect(yesno(value)).to.be.true
 		}
+	})
+})
+
+describe.concurrent("mapListPush()", it => {
+	it("works", ({ expect }) => {
+		const map = new Map<string, number[]>()
+		mapListPush(map, "a", 1)
+		mapListPush(map, "a", 2)
+		mapListPush(map, "b", 3)
+		expect(map).to.toMatchInlineSnapshot(`
+			Map {
+			  "a" => [
+			    1,
+			    2,
+			  ],
+			  "b" => [
+			    3,
+			  ],
+			}
+		`)
+	})
+
+	it("works with non string keys", ({ expect }) => {
+		const map = new Map<{}, number[]>()
+		const key1 = {}
+		const key2 = {}
+		mapListPush(map, key1, 1)
+		mapListPush(map, key1, 2)
+		mapListPush(map, key2, 3)
+		expect(map).to.toMatchInlineSnapshot(`
+			Map {
+			  {} => [
+			    1,
+			    2,
+			  ],
+			  {} => [
+			    3,
+			  ],
+			}
+		`)
+	})
+
+	it("works with Array.prototype.reduce()", ({ expect }) => {
+		const map1 = new Map<string, number[]>()
+		const values = [
+			{ key: "a", value: 1 },
+			{ key: "a", value: 2 },
+			{ key: "b", value: 3 },
+		]
+		const map2 = values.reduce(
+			(acc, cur) => mapListPush(acc, cur.key, cur.value),
+			map1,
+		)
+		expect(map2).toStrictEqual(map1)
+		expect(map2).to.toMatchInlineSnapshot(`
+			Map {
+			  "a" => [
+			    1,
+			    2,
+			  ],
+			  "b" => [
+			    3,
+			  ],
+			}
+		`)
+	})
+})
+
+describe.concurrent("recordListPush()", it => {
+	it("works", ({ expect }) => {
+		const record: Record<string, number[]> = {}
+		recordListPush(record, "a", 1)
+		recordListPush(record, "a", 2)
+		recordListPush(record, "b", 3)
+		expect(record).to.toMatchInlineSnapshot(`
+			{
+			  "a": [
+			    1,
+			    2,
+			  ],
+			  "b": [
+			    3,
+			  ],
+			}
+		`)
+	})
+
+	it("works with Array.prototype.reduce()", ({ expect }) => {
+		const record1: Record<string, number[]> = {}
+		const values = [
+			{ key: "a", value: 1 },
+			{ key: "a", value: 2 },
+			{ key: "b", value: 3 },
+		]
+		const record2 = values.reduce(
+			(acc, cur) => recordListPush(acc, cur.key, cur.value),
+			record1,
+		)
+		expect(record2).toStrictEqual(record1)
+		expect(record2).to.toMatchInlineSnapshot(`
+			{
+			  "a": [
+			    1,
+			    2,
+			  ],
+			  "b": [
+			    3,
+			  ],
+			}
+		`)
 	})
 })
 

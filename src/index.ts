@@ -54,6 +54,27 @@ export function yesno(value?: string) {
 	}
 }
 
+export function mapListPush<Key, T>(
+	map: Map<Key, T[]>,
+	key: Key,
+	value: T,
+): Map<Key, T[]> {
+	const arr = map.get(key) ?? []
+	arr.push(value)
+	return map.set(key, arr)
+}
+
+export function recordListPush<Key extends string, T>(
+	record: Record<Key, T[]>,
+	key: Key,
+	value: T,
+): Record<Key, T[]> {
+	const arr = record[key] ?? []
+	arr.push(value)
+	record[key] = arr
+	return record
+}
+
 export type ExecResult<T, Err = Error> = [null, T] | [Err, null]
 
 export function tryCatch<F extends (...args: any) => any>(
