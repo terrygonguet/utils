@@ -55,5 +55,8 @@
 	},
 	"bugs": {
 		"url": "https://github.com/terrygonguet/utils/issues"
+	},
+	"dependencies": {
+		"@standard-schema/spec": "^1.0.0"
 	}
 }
