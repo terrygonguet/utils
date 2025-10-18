@@ -28,24 +28,37 @@ export class Option<T> {
 		return Option.Some(iter.value)
 	}
 
-	static from<T>(maybeValue: T | undefined | null): Option<T> {
+	static from<T>(
+		maybeValue: unknown,
+		{ allowOptionLikePOJO = false } = {},
+	): Option<T> {
 		if (maybeValue === undefined || maybeValue === null)
 			return Option.None()
-		else return Option.Some(maybeValue)
+		else if (Option.isOption<T>(maybeValue)) return maybeValue
+		else if (
+			allowOptionLikePOJO &&
+			maybeValue &&
+			typeof maybeValue == "object" &&
+			"_kind" in maybeValue &&
+			(maybeValue._kind == "Some" || maybeValue._kind == "None")
+		)
+			return new Option<T>(
+				maybeValue._kind as "Some" | "None",
+				(maybeValue as any).value,
+			)
+		else return Option.Some(maybeValue as T)
 	}
 
 	static wrapFunction<T, Args extends any[]>(
 		f: (...args: Args) => T | undefined | null,
+		{ allowOptionLikePOJO = false } = {},
 	): (...args: Args) => Option<T> {
-		return (...args: Args) => Option.from(f(...args))
+		return (...args: Args) =>
+			Option.from(f(...args), { allowOptionLikePOJO })
 	}
 
 	static isOption<T>(maybeOption: unknown): maybeOption is Option<T> {
-		return (maybeOption &&
-			typeof maybeOption == "object" &&
-			"_kind" in maybeOption &&
-			(maybeOption._kind == "Some" ||
-				maybeOption._kind == "None")) as boolean
+		return maybeOption instanceof Option
 	}
 
 	static Some<T>(value: T): Option<T> {
@@ -76,14 +89,15 @@ export class Option<T> {
 		return this._kind == "None"
 	}
 
-	equal(other: Option<T>): boolean {
+	equals(other: Option<T>): boolean {
 		if (this.isNone()) return other.isNone()
 		else if (other.isNone()) return false
 		else return this.value == other.value
 	}
 
-	map<U>(f: (value: T) => U): Option<U> {
+	map<U>(f: (value: T) => U, { coalesce = false } = {}): Option<U> {
 		if (this.isNone()) return Option.None()
+		else if (coalesce) return Option.from(f(this.value))
 		else return Option.Some(f(this.value))
 	}
 
@@ -124,6 +138,7 @@ export class Option<T> {
 	}
 
 	filter<U extends T>(predicate: (value: T) => value is U): Option<U>
+	filter(predicate: (value: T) => boolean): Option<T>
 	filter(predicate: (value: T) => boolean): Option<T> {
 		if (this.isNone()) return this
 		else return predicate(this.value) ? this : Option.None()
