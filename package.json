@@ -24,17 +24,21 @@
 			"types": "./dist/json.d.ts",
 			"import": "./dist/json.js"
 		},
+		"./option": {
+			"types": "./dist/option.d.ts",
+			"import": "./dist/option.js"
+		},
 		"./random": {
 			"types": "./dist/random.d.ts",
 			"import": "./dist/random.js"
 		},
-		"./tableau": {
-			"types": "./dist/tableau.d.ts",
-			"import": "./dist/tableau.js"
-		},
 		"./result": {
 			"types": "./dist/result.d.ts",
 			"import": "./dist/result.js"
+		},
+		"./tableau": {
+			"types": "./dist/tableau.d.ts",
+			"import": "./dist/tableau.js"
 		}
 	},
 	"devDependencies": {
