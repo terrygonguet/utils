@@ -3,43 +3,43 @@ import { Option } from "./option.ts"
 
 describe.concurrent("class Option", it => {
 	it("from()", ({ expect }) => {
-		expect(Option.from(0)).to.toMatchInlineSnapshot(`
+		expect(Option.from(0)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 0,
 			}
 		`)
-		expect(Option.from("")).to.toMatchInlineSnapshot(`
+		expect(Option.from("")).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": "",
 			}
 		`)
-		expect(Option.from(false)).to.toMatchInlineSnapshot(`
+		expect(Option.from(false)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": false,
 			}
 		`)
-		expect(Option.from(null)).to.toMatchInlineSnapshot(`
+		expect(Option.from(null)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
 			}
 		`)
-		expect(Option.from(undefined)).to.toMatchInlineSnapshot(`
+		expect(Option.from(undefined)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
 			}
 		`)
-		expect(Option.from(Option.Some(5))).to.toMatchInlineSnapshot(`
+		expect(Option.from(Option.Some(5))).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 5,
 			}
 		`)
-		expect(Option.from(Option.None())).to.toMatchInlineSnapshot(`
+		expect(Option.from(Option.None())).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
@@ -55,7 +55,7 @@ describe.concurrent("class Option", it => {
 				  },
 				}
 			`)
-		expect(Option.from({ _kind: "None" })).to.toMatchInlineSnapshot(`
+		expect(Option.from({ _kind: "None" })).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": {
@@ -68,7 +68,7 @@ describe.concurrent("class Option", it => {
 				{ _kind: "Some", value: 5 },
 				{ allowOptionLikePOJO: true },
 			),
-		).to.toMatchInlineSnapshot(`
+		).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 5,
@@ -109,37 +109,37 @@ describe.concurrent("class Option", it => {
 		const get2 = Option.wrapFunction((key: number) => map.get(key), {
 			allowOptionLikePOJO: true,
 		})
-		expect(get1(0)).to.toMatchInlineSnapshot(`
+		expect(get1(0)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
 			}
 		`)
-		expect(get1(1)).to.toMatchInlineSnapshot(`
+		expect(get1(1)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
 			}
 		`)
-		expect(get1(2)).to.toMatchInlineSnapshot(`
+		expect(get1(2)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
 			}
 		`)
-		expect(get1(3)).to.toMatchInlineSnapshot(`
+		expect(get1(3)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 0,
 			}
 		`)
-		expect(get1(4)).to.toMatchInlineSnapshot(`
+		expect(get1(4)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": "",
 			}
 		`)
-		expect(get1(5)).to.toMatchInlineSnapshot(`
+		expect(get1(5)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": {
@@ -147,7 +147,7 @@ describe.concurrent("class Option", it => {
 			  },
 			}
 		`)
-		expect(get1(6)).to.toMatchInlineSnapshot(`
+		expect(get1(6)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": {
@@ -156,13 +156,13 @@ describe.concurrent("class Option", it => {
 			  },
 			}
 		`)
-		expect(get2(5)).to.toMatchInlineSnapshot(`
+		expect(get2(5)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
 			}
 		`)
-		expect(get2(6)).to.toMatchInlineSnapshot(`
+		expect(get2(6)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 5,
@@ -188,13 +188,13 @@ describe.concurrent("class Option", it => {
 	})
 
 	it("map()", ({ expect }) => {
-		expect(Option.Some(5).map(n => n + 5)).to.toMatchInlineSnapshot(`
+		expect(Option.Some(5).map(n => n + 5)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 10,
 			}
 		`)
-		expect(Option.None<number>().map(n => n + 5)).to.toMatchInlineSnapshot(`
+		expect(Option.None<number>().map(n => n + 5)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
@@ -211,7 +211,7 @@ describe.concurrent("class Option", it => {
 			Option.Some(new Map()).map(map => map.get("key"), {
 				coalesce: true,
 			}),
-		).to.toMatchInlineSnapshot(`
+		).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
@@ -257,19 +257,19 @@ describe.concurrent("class Option", it => {
 	})
 
 	it("flatten()", ({ expect }) => {
-		expect(Option.Some(5).flatten()).to.toMatchInlineSnapshot(`
+		expect(Option.Some(5).flatten()).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 5,
 			}
 		`)
-		expect(Option.None().flatten()).to.toMatchInlineSnapshot(`
+		expect(Option.None().flatten()).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
 			}
 		`)
-		expect(Option.Some(Option.Some(5)).flatten()).to.toMatchInlineSnapshot(`
+		expect(Option.Some(Option.Some(5)).flatten()).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 5,
@@ -289,7 +289,7 @@ describe.concurrent("class Option", it => {
 			Option.Some(Option.Some(Option.Some(5)))
 				.flatten()
 				.flatten(),
-		).to.toMatchInlineSnapshot(`
+		).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 5,
@@ -298,13 +298,13 @@ describe.concurrent("class Option", it => {
 	})
 
 	it("or(), orDefault(), orUndefined() & orNull()", ({ expect }) => {
-		expect(Option.Some(5).or(Option.Some(10))).to.toMatchInlineSnapshot(`
+		expect(Option.Some(5).or(Option.Some(10))).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 5,
 			}
 		`)
-		expect(Option.None().or(Option.Some(10))).to.toMatchInlineSnapshot(`
+		expect(Option.None().or(Option.Some(10))).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 10,
@@ -320,7 +320,7 @@ describe.concurrent("class Option", it => {
 
 	it("unwrap()", ({ expect }) => {
 		expect(Option.Some(5).unwrap()).to.equal(5)
-		expect(Option.Some(Option.Some(5)).unwrap()).to.toMatchInlineSnapshot(`
+		expect(Option.Some(Option.Some(5)).unwrap()).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 5,
@@ -332,13 +332,13 @@ describe.concurrent("class Option", it => {
 	})
 
 	it("filter()", ({ expect }) => {
-		expect(Option.Some(10).filter(n => n > 5)).to.toMatchInlineSnapshot(`
+		expect(Option.Some(10).filter(n => n > 5)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "Some",
 			  "value": 10,
 			}
 		`)
-		expect(Option.Some(5).filter(n => n > 5)).to.toMatchInlineSnapshot(`
+		expect(Option.Some(5).filter(n => n > 5)).toMatchInlineSnapshot(`
 			Option {
 			  "_kind": "None",
 			  "value": undefined,
@@ -357,6 +357,44 @@ describe.concurrent("class Option", it => {
 			Option {
 			  "_kind": "Some",
 			  "value": "string",
+			}
+		`)
+	})
+
+	it("do()", ({ expect }) => {
+		const divide = (a: number, b: number) =>
+			b == 0 ? Option.None() : Option.Some(a / b)
+
+		const result1 = Option.do(function* () {
+			const a = yield* Option.Some(5)
+			return yield* divide(a, 2)
+		})
+		expect(result1).to.toMatchInlineSnapshot(`
+			Option {
+			  "_kind": "Some",
+			  "value": 2.5,
+			}
+		`)
+
+		const result2 = Option.do(function* () {
+			const a = yield* Option.Some(5)
+			return yield* divide(a, 0)
+		})
+		expect(result2).to.toMatchInlineSnapshot(`
+			Option {
+			  "_kind": "None",
+			  "value": undefined,
+			}
+		`)
+
+		const result3 = Option.do(function* () {
+			const a = yield* Option.None<number>()
+			return yield* divide(a, 2)
+		})
+		expect(result3).to.toMatchInlineSnapshot(`
+			Option {
+			  "_kind": "None",
+			  "value": undefined,
 			}
 		`)
 	})

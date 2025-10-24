@@ -12,6 +12,13 @@ export class Option<T> {
 		this.value = value!
 	}
 
+	*[Symbol.iterator](): Iterator<Option<T>, T> {
+		yield this
+		if (this.isNone())
+			throw new Error("Tried to unwrap a None() via its iterator")
+		else return this.value
+	}
+
 	static do<T>(f: () => Iterator<Option<any>, T, any>): Option<T> {
 		const gen = f()
 		let iter = gen.next()
@@ -68,13 +75,6 @@ export class Option<T> {
 	static #None = new Option<never>("None")
 	static None<T>(): Option<T> {
 		return this.#None
-	}
-
-	*[Symbol.iterator](): Iterator<Option<T>, T> {
-		yield this
-		if (this.isNone())
-			throw new Error("Tried to unwrap a None() via its iterator")
-		else return this.value
 	}
 
 	[Symbol.toPrimitive]() {
