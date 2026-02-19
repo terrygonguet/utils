@@ -1,6 +1,6 @@
 {
 	"name": "@terrygonguet/utils",
-	"version": "0.10.0",
+	"version": "0.10.1",
 	"type": "module",
 	"license": "MIT",
 	"scripts": {
@@ -14,41 +14,48 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"import": "./dist/index.js"
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
 		},
 		"./async": {
 			"types": "./dist/async.d.ts",
-			"import": "./dist/async.js"
+			"import": "./dist/async.js",
+			"default": "./dist/async.js"
 		},
 		"./json": {
 			"types": "./dist/json.d.ts",
-			"import": "./dist/json.js"
+			"import": "./dist/json.js",
+			"default": "./dist/json.js"
 		},
 		"./option": {
 			"types": "./dist/option.d.ts",
-			"import": "./dist/option.js"
+			"import": "./dist/option.js",
+			"default": "./dist/option.js"
 		},
 		"./random": {
 			"types": "./dist/random.d.ts",
-			"import": "./dist/random.js"
+			"import": "./dist/random.js",
+			"default": "./dist/random.js"
 		},
 		"./result": {
 			"types": "./dist/result.d.ts",
-			"import": "./dist/result.js"
+			"import": "./dist/result.js",
+			"default": "./dist/result.js"
 		},
 		"./tableau": {
 			"types": "./dist/tableau.d.ts",
-			"import": "./dist/tableau.js"
+			"import": "./dist/tableau.js",
+			"default": "./dist/tableau.js"
 		}
 	},
 	"devDependencies": {
 		"@types/benchmark": "^2.1.5",
 		"benchmark": "^2.1.4",
-		"prettier": "^3.6.2",
-		"tsup": "^8.5.0",
+		"prettier": "^3.8.1",
+		"tsup": "^8.5.1",
 		"typescript": "^5.9.3",
-		"vite": "^7.1.12",
-		"vitest": "^4.0.2"
+		"vite": "^7.3.1",
+		"vitest": "^4.0.18"
 	},
 	"author": {
 		"email": "terry@gonguet.com",
@@ -63,6 +70,6 @@
 		"url": "https://github.com/terrygonguet/utils/issues"
 	},
 	"dependencies": {
-		"@standard-schema/spec": "^1.0.0"
+		"@standard-schema/spec": "^1.1.0"
 	}
 }
