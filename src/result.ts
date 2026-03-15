@@ -1,4 +1,6 @@
-class Result<Err extends Error, T> {
+import { StandardSchemaV1 } from "@standard-schema/spec"
+
+export class Result<Err extends Error, T> {
 	value: T | null
 	error: Err | null
 
@@ -61,7 +63,7 @@ class Result<Err extends Error, T> {
 	}
 }
 
-class AsyncResult<Err extends Error, T> {
+export class AsyncResult<Err extends Error, T> {
 	promise: Promise<T>
 
 	constructor(promise: Promise<T>) {
@@ -146,5 +148,64 @@ export function safe(promiseOrFunction: any, ...args: any): any {
 		else return new Result(value, null)
 	} catch (error) {
 		return new Result(null, RawError.wrap(error))
+	}
+}
+
+export class SafeFunctionValidationError extends Error {
+	name = "SafeFunctionValidationError"
+	issues: StandardSchemaV1.FailureResult["issues"]
+
+	constructor(message: string, issues: StandardSchemaV1.FailureResult["issues"], options?: ErrorOptions) {
+		super(message, options)
+		this.issues = issues
+	}
+}
+
+interface MakeSafeFnOptions<
+	ParamsSchema extends StandardSchemaV1 | undefined,
+	ReturnSchema extends StandardSchemaV1 | undefined,
+> {
+	paramsSchema?: ParamsSchema
+	returnSchema?: ReturnSchema
+}
+
+// TODO figure out how to accept async functions with validation
+export function makeSafeFn<
+	Err extends Error,
+	ParamsSchema extends StandardSchemaV1 | undefined,
+	ReturnSchema extends StandardSchemaV1 | undefined,
+	F extends (
+		...args: ParamsSchema extends StandardSchemaV1 ? StandardSchemaV1.InferOutput<ParamsSchema> : any
+	) => ReturnSchema extends StandardSchemaV1 ? StandardSchemaV1.InferOutput<ReturnSchema> : any,
+>(
+	f: F,
+	options?: MakeSafeFnOptions<ParamsSchema, ReturnSchema>,
+): (...args: Parameters<F>) => Result<Err, ReturnType<F>> {
+	return function (...args: any): any {
+		if (options?.paramsSchema) {
+			const parsed = options.paramsSchema["~standard"].validate(args)
+			if ("then" in parsed)
+				return new Result(
+					null,
+					new TypeError("[makeSafeFn] Parameters check failed: Async schemas are not supported"),
+				)
+			else if (parsed.issues)
+				return new Result(
+					null,
+					new SafeFunctionValidationError("[makeSafeFn] Parameters check failed", parsed.issues),
+				)
+			else args = parsed.value
+		}
+
+		if (options?.returnSchema)
+			return safe(f, ...args).andThen(returned => {
+				const parsed = options.returnSchema!["~standard"].validate(returned)
+				if ("then" in parsed)
+					throw new TypeError("[makeSafeFn] Return check failed: Async schemas are not supported")
+				else if (parsed.issues)
+					throw new SafeFunctionValidationError("[makeSafeFn] Return check failed", parsed.issues)
+				else return parsed.value
+			})
+		else return safe(f, ...args)
 	}
 }

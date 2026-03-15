@@ -1,5 +1,6 @@
 import { assertType, describe, vi } from "vitest"
-import { safe } from "./result.ts"
+import { Result, SafeFunctionValidationError, makeSafeFn, safe } from "./result.ts"
+import { StandardSchemaV1 } from "@standard-schema/spec"
 
 describe.concurrent("safe()", it => {
 	it("accepts a simple function", ({ expect }) => {
@@ -247,3 +248,108 @@ describe.concurrent("safe()", it => {
 		expect(spy2).toHaveBeenCalledOnce()
 	})
 })
+
+describe.concurrent("makeSafeFn()", it => {
+	it("wraps a function to make it safe", ({ expect }) => {
+		const f = makeSafeFn((n: number, char: string) => {
+			if (n < 0) throw new Error("test")
+			else return char.repeat(n)
+		})
+
+		const result1 = f(3, "n")
+		expect(result1).to.toBeInstanceOf(Result)
+		expect(result1.value).to.equal("nnn")
+		expect(result1.error).to.be.null
+
+		const result2 = f(-5, "n")
+		expect(result2).to.toBeInstanceOf(Result)
+		expect(result2.value).to.be.null
+		expect(result2.error).to.deep.equal(new Error("test"))
+	})
+
+	it("wraps an async function to make it safe", async ({ expect }) => {
+		const f = makeSafeFn(async (n: number, char: string) => {
+			if (n < 0) throw new Error("test")
+			else return char.repeat(n)
+		})
+
+		expect(await f(3, "n").asObject()).to.deep.equal({ value: "nnn", error: null })
+		expect(await f(-5, "n").asObject()).to.deep.equal({ value: null, error: new Error("test") })
+	})
+
+	it("accepts a schema to check the inputs", ({ expect }) => {
+		const f = makeSafeFn(
+			(n: number, char: string) => {
+				if (n < 0) throw new Error("test")
+				else return char.repeat(n)
+			},
+			{ paramsSchema: tupleSchema },
+		)
+
+		const result1 = f(3, "n")
+		expect(result1).to.toBeInstanceOf(Result)
+		expect(result1.value).to.equal("nnn")
+		expect(result1.error).to.be.null
+
+		// @ts-expect-error
+		const result2 = f("3", "n")
+		expect(result2).to.toBeInstanceOf(Result)
+		expect(result2.value).to.be.null
+		expect(result2.error).to.toMatchInlineSnapshot(
+			`[SafeFunctionValidationError: [makeSafeFn] Parameters check failed]`,
+		)
+		expect((result2.error as SafeFunctionValidationError).issues).to.deep.equal([
+			{ message: "test failure", path: ["prop"] },
+		])
+	})
+
+	it("accepts a schema to check the returned value", ({ expect }) => {
+		const f = makeSafeFn(
+			(n: number): string => {
+				if (n < 0) throw new Error("test")
+				else if (n < 5) return n.toString()
+				// @ts-expect-error
+				else return n
+			},
+			{ returnSchema: stringSchema },
+		)
+
+		const result1 = f(3)
+		expect(result1).to.toBeInstanceOf(Result)
+		expect(result1.value).to.equal("3")
+		expect(result1.error).to.be.null
+
+		const result2 = f(5)
+		expect(result2).to.toBeInstanceOf(Result)
+		expect(result2.value).to.be.null
+		expect(result2.error).to.toMatchInlineSnapshot(
+			`[SafeFunctionValidationError: [makeSafeFn] Return check failed]`,
+		)
+		expect((result2.error as SafeFunctionValidationError).issues).to.deep.equal([
+			{ message: "test failure", path: ["prop"] },
+		])
+	})
+})
+
+const tupleSchema: StandardSchemaV1<unknown, [number, string]> = {
+	"~standard": {
+		vendor: "test",
+		version: 1,
+		validate(value) {
+			if (Array.isArray(value) && value.length == 2 && typeof value[0] == "number" && typeof value[1] == "string")
+				return { value: structuredClone(value) as any }
+			else return { issues: [{ message: "test failure", path: ["prop"] }] }
+		},
+	},
+}
+
+const stringSchema: StandardSchemaV1<unknown, string> = {
+	"~standard": {
+		vendor: "test",
+		version: 1,
+		validate(value) {
+			if (typeof value == "string") return { value }
+			else return { issues: [{ message: "test failure", path: ["prop"] }] }
+		},
+	},
+}
