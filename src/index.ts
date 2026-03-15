@@ -54,21 +54,13 @@ export function yesno(value?: string) {
 	}
 }
 
-export function mapListPush<Key, T>(
-	map: Map<Key, T[]>,
-	key: Key,
-	value: T,
-): Map<Key, T[]> {
+export function mapListPush<Key, T>(map: Map<Key, T[]>, key: Key, value: T): Map<Key, T[]> {
 	const arr = map.get(key) ?? []
 	arr.push(value)
 	return map.set(key, arr)
 }
 
-export function recordListPush<Key extends string, T>(
-	record: Record<Key, T[]>,
-	key: Key,
-	value: T,
-): Record<Key, T[]> {
+export function recordListPush<Key extends string, T>(record: Record<Key, T[]>, key: Key, value: T): Record<Key, T[]> {
 	const arr = record[key] ?? []
 	arr.push(value)
 	record[key] = arr
@@ -80,16 +72,12 @@ export type ExecResult<T, Err = Error> = [null, T] | [Err, null]
 export function tryCatch<F extends (...args: any) => any>(
 	f: F,
 	...args: Parameters<F>
-): ReturnType<F> extends Promise<any>
-	? Promise<ExecResult<Awaited<ReturnType<F>>>>
-	: ExecResult<ReturnType<F>>
+): ReturnType<F> extends Promise<infer T> ? Promise<ExecResult<T>> : ExecResult<ReturnType<F>>
 
 export function tryCatch<Err, F extends (...args: any) => any>(
 	f: F,
 	...args: Parameters<F>
-): ReturnType<F> extends Promise<any>
-	? Promise<ExecResult<Awaited<ReturnType<F>>, Err>>
-	: ExecResult<ReturnType<F>, Err>
+): ReturnType<F> extends Promise<infer T> ? Promise<ExecResult<T, Err>> : ExecResult<ReturnType<F>, Err>
 
 export function tryCatch<F extends (...args: any) => any | Promise<any>>(
 	f: F,

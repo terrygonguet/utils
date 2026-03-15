@@ -17,9 +17,7 @@ class Result<Err extends Error, T> {
 
 	andThen<Err2 extends Error, F extends (value: T) => any>(
 		f: F,
-	): ReturnType<F> extends Promise<any>
-		? AsyncResult<Err | Err2, Awaited<ReturnType<F>>>
-		: Result<Err | Err2, ReturnType<F>> {
+	): ReturnType<F> extends Promise<infer U> ? AsyncResult<Err | Err2, U> : Result<Err | Err2, ReturnType<F>> {
 		if (this.error || !this.value) return this as any
 		try {
 			const newValue = f(this.value)
@@ -33,14 +31,11 @@ class Result<Err extends Error, T> {
 
 	recover<Err2 extends Error, F extends (error: Err) => T | Promise<T>>(
 		f: F,
-	): ReturnType<F> extends Promise<any>
-		? AsyncResult<Err2, T>
-		: Result<Err2, T> {
+	): ReturnType<F> extends Promise<T> ? AsyncResult<Err2, T> : Result<Err2, T> {
 		if (!this.error) return this as any
 		try {
 			const newValue = f(this.error)
-			if (newValue instanceof Promise)
-				return new AsyncResult(newValue) as any
+			if (newValue instanceof Promise) return new AsyncResult(newValue) as any
 			else return new Result(newValue, null) as any
 		} catch (error) {
 			return new Result(null, RawError.wrap(error)) as any
@@ -69,9 +64,7 @@ class AsyncResult<Err extends Error, T> {
 		return this.then(result => result.asTuple())
 	}
 
-	asObject(): Promise<
-		{ value: null; error: Err } | { value: T; error: null }
-	> {
+	asObject(): Promise<{ value: null; error: Err } | { value: T; error: null }> {
 		return this.then(result => result.asObject())
 	}
 
@@ -82,9 +75,7 @@ class AsyncResult<Err extends Error, T> {
 		)
 	}
 
-	andThen<Err2 extends Error, F extends (value: T) => any>(
-		f: F,
-	): AsyncResult<Err | Err2, Awaited<ReturnType<F>>> {
+	andThen<Err2 extends Error, F extends (value: T) => any>(f: F): AsyncResult<Err | Err2, Awaited<ReturnType<F>>> {
 		return new AsyncResult(this.promise.then(value => f(value)))
 	}
 
@@ -123,20 +114,17 @@ class RawError extends Error {
 	}
 }
 
-export function safe<Err extends Error, T>(
-	promise: Promise<T>,
-): AsyncResult<Error, T>
-export function safe<
-	Err extends Error,
-	F extends (...args: any) => Promise<any>,
->(f: F, ...args: Parameters<F>): AsyncResult<Err, Awaited<ReturnType<F>>>
+export function safe<Err extends Error, T>(promise: Promise<T>): AsyncResult<Error, T>
+export function safe<Err extends Error, F extends (...args: any) => Promise<any>>(
+	f: F,
+	...args: Parameters<F>
+): AsyncResult<Err, Awaited<ReturnType<F>>>
 export function safe<Err extends Error, F extends (...args: any) => any>(
 	f: F,
 	...args: Parameters<F>
 ): Result<Err, ReturnType<F>>
 export function safe(promiseOrFunction: any, ...args: any): any {
-	if (promiseOrFunction instanceof Promise)
-		return new AsyncResult(promiseOrFunction)
+	if (promiseOrFunction instanceof Promise) return new AsyncResult(promiseOrFunction)
 	try {
 		const value = promiseOrFunction(...args)
 		if (value instanceof Promise) return new AsyncResult(value)
