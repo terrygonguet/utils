@@ -2,6 +2,8 @@ class Result<Err extends Error, T> {
 	value: T | null
 	error: Err | null
 
+	constructor(value: null, error: Err)
+	constructor(value: T, error: null)
 	constructor(value: T | null, error: Err | null) {
 		this.value = value
 		this.error = error
@@ -18,11 +20,10 @@ class Result<Err extends Error, T> {
 	andThen<Err2 extends Error, F extends (value: T) => any>(
 		f: F,
 	): ReturnType<F> extends Promise<infer U> ? AsyncResult<Err | Err2, U> : Result<Err | Err2, ReturnType<F>> {
-		if (this.error || !this.value) return this as any
+		if (this.error) return this as any
 		try {
-			const newValue = f(this.value)
-			if (newValue instanceof Promise)
-				return new AsyncResult(newValue) as any
+			const newValue = f(this.value!)
+			if (newValue instanceof Promise) return new AsyncResult(newValue) as any
 			else return new Result(newValue, null) as any
 		} catch (error) {
 			return new Result(null, RawError.wrap(error)) as any
@@ -43,7 +44,7 @@ class Result<Err extends Error, T> {
 	}
 
 	unwrap(): T {
-		if (this.value && !this.error) return this.value as T
+		if (!this.error) return this.value as T
 		else throw new Error("Tried to unwrap a failed Result")
 	}
 
