@@ -64,12 +64,11 @@ describe.concurrent("safe()", it => {
 	})
 
 	it("errors interupt the chaining", ({ expect }) => {
-		const temp = { f: (n: number) => n + 5 }
-		const spy = vi.spyOn(temp, "f")
+		const spy = vi.fn((n: number) => n + 5)
 		const result = safe(() => {
 			throw new Error("test")
 			return 10
-		}).andThen(temp.f)
+		}).andThen(spy)
 		expect(result.value).to.equal(null)
 		expect(result.error).to.deep.equal(new Error("test"))
 		expect(spy).not.toHaveBeenCalled()
@@ -108,21 +107,18 @@ describe.concurrent("safe()", it => {
 	})
 
 	it("errors interrupt the async chaining", async ({ expect }) => {
-		const temp = { f: (n: number) => n + 5 }
-		const spy = vi.spyOn(temp, "f")
+		const spy = vi.fn((n: number) => n + 5)
 		const result = await safe(async () => {
 			throw new Error("test")
 			return 10
-		}).andThen(temp.f)
+		}).andThen(spy)
 		expect(result.value).to.equal(null)
 		expect(result.error).to.deep.equal(new Error("test"))
 		expect(spy).not.toHaveBeenCalled()
 	})
 
 	it("allows async destructuring", async ({ expect }) => {
-		const { error: err1, value: val1 } = await safe(
-			async () => 10,
-		).asObject()
+		const { error: err1, value: val1 } = await safe(async () => 10).asObject()
 		expect(val1).to.equal(10)
 		expect(err1).to.equal(null)
 		const [err2, val2] = await safe(async () => 10).asTuple()
@@ -201,5 +197,53 @@ describe.concurrent("safe()", it => {
 				return 10
 			}).unwrap(),
 		).rejects.toThrow()
+	})
+
+	it("can run a function on success", async ({ expect }) => {
+		const spy = vi.fn((n: number) => n + 5)
+
+		expect(safe(() => 10).match(spy)).to.be.undefined
+		expect(spy).toHaveBeenCalledOnce()
+
+		spy.mockClear()
+		expect(await safe(async () => 10).match(spy)).to.be.undefined
+		expect(spy).toHaveBeenCalledOnce()
+	})
+
+	it("can run a function on either success or failure", async ({ expect }) => {
+		const spy1 = vi.fn((n: number) => n + 5)
+		const spy2 = vi.fn((err: Error) => err.message.length)
+
+		expect(safe(() => 10).match(spy1, spy2)).to.equal(15)
+		expect(spy1).toHaveBeenCalledOnce()
+		expect(spy2).not.toHaveBeenCalled()
+
+		spy1.mockClear()
+		spy2.mockClear()
+		expect(await safe(async () => 10).match(spy1, spy2)).to.equal(15)
+		expect(spy1).toHaveBeenCalledOnce()
+		expect(spy2).not.toHaveBeenCalled()
+
+		spy1.mockClear()
+		spy2.mockClear()
+		expect(
+			safe(() => {
+				throw new Error("test")
+				return 10
+			}).match(spy1, spy2),
+		).to.equal(4)
+		expect(spy1).not.toHaveBeenCalled()
+		expect(spy2).toHaveBeenCalledOnce()
+
+		spy1.mockClear()
+		spy2.mockClear()
+		expect(
+			await safe(async () => {
+				throw new Error("test")
+				return 10
+			}).match(spy1, spy2),
+		).to.equal(4)
+		expect(spy1).not.toHaveBeenCalled()
+		expect(spy2).toHaveBeenCalledOnce()
 	})
 })

@@ -30,6 +30,13 @@ class Result<Err extends Error, T> {
 		}
 	}
 
+	match(onValue: (value: T) => void): void
+	match<U>(onValue: (value: T) => U, onError: (error: Err) => U): U
+	match<U>(onValue: (value: T) => U, onError?: (error: Err) => U) {
+		if (this.error) return onError?.(this.error)
+		else return onError ? onValue(this.value!) : void onValue(this.value!)
+	}
+
 	recover<Err2 extends Error, F extends (error: Err) => T | Promise<T>>(
 		f: F,
 	): ReturnType<F> extends Promise<T> ? AsyncResult<Err2, T> : Result<Err2, T> {
@@ -80,9 +87,16 @@ class AsyncResult<Err extends Error, T> {
 		return new AsyncResult(this.promise.then(value => f(value)))
 	}
 
-	recover<Err2 extends Error, F extends (error: Err) => T | Promise<T>>(
-		f: F,
-	): AsyncResult<Err2, T> {
+	match(onValue: (value: T) => void): Promise<void>
+	match<U>(onValue: (value: T) => U, onError: (error: Err) => U): Promise<U>
+	match<U>(onValue: (value: T) => U, onError?: (error: Err) => U) {
+		return this.promise.then(
+			value => (onError ? onValue(value) : void onValue(value)),
+			error => onError?.(error),
+		)
+	}
+
+	recover<Err2 extends Error, F extends (error: Err) => T | Promise<T>>(f: F): AsyncResult<Err2, T> {
 		return new AsyncResult(
 			this.promise.then(
 				value => value,
